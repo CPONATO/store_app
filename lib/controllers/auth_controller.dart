@@ -59,6 +59,7 @@ class AuthController {
     } catch (e) {}
   }
 
+  // Trong auth_controller.dart, phương thức signInUsers
   Future<void> signInUsers({
     required BuildContext context,
     required String email,
@@ -67,10 +68,7 @@ class AuthController {
     try {
       http.Response response = await http.post(
         Uri.parse("$uri/api/signin"),
-        body: jsonEncode({
-          "email": email,
-          "password": password,
-        }), // Create a map here
+        body: jsonEncode({"email": email, "password": password}),
         headers: <String, String>{
           "Content-Type": 'application/json; charset=UTF-8',
         },
@@ -80,36 +78,44 @@ class AuthController {
         response: response,
         context: context,
         onSuccess: () async {
-          //Access sharedPreferences for token and user data storage
           SharedPreferences preferences = await SharedPreferences.getInstance();
 
-          //Extract the authentication token from the response body
-          String token = jsonDecode(response.body)['token'];
+          // Lấy dữ liệu từ phản hồi
+          final userData = jsonDecode(response.body)['user'];
+          final token = jsonDecode(response.body)['token'];
+          final userJson = jsonEncode(userData);
 
-          //STORE the authentication token securely in sharedPreferences
+          try {
+            // Xóa dữ liệu cũ trước khi lưu dữ liệu mới
+            await preferences.remove('auth_token');
+            await preferences.remove('user');
 
-          preferences.setString('auth_token', token);
+            // Lưu dữ liệu mới
+            await preferences.setString('auth_token', token);
+            await preferences.setString('user', userJson);
 
-          //Encode the user data recived from the backend as json
-          final userJson = jsonEncode(jsonDecode(response.body)['user']);
+            // Kiểm tra xem dữ liệu đã được lưu chính xác chưa
+            print("Đã lưu token: ${preferences.getString('auth_token')}");
+            print("Đã lưu user: ${preferences.getString('user')}");
 
-          //update the application state with the user data using Riverpod
-          providerContainer.read(userProvider.notifier).setUser(userJson);
+            // Cập nhật provider
+            providerContainer.read(userProvider.notifier).setUser(userJson);
 
-          //store the data in sharePreference  for future use
+            // Điều hướng
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => MainScreen()),
+              (route) => false,
+            );
 
-          await preferences.setString('user', userJson);
-
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(
-              builder: (context) {
-                return MainScreen();
-              },
-            ),
-            (route) => false,
-          );
-          showSnackBar(context, 'Logged in');
+            showSnackBar(context, 'Đã đăng nhập');
+          } catch (e) {
+            print("Lỗi khi lưu dữ liệu đăng nhập: $e");
+            showSnackBar(
+              context,
+              'Đăng nhập thành công nhưng có lỗi khi lưu thông tin đăng nhập',
+            );
+          }
         },
       );
     } catch (e) {}
@@ -120,14 +126,27 @@ class AuthController {
   Future<void> signOutUSer({required BuildContext context}) async {
     try {
       SharedPreferences preferences = await SharedPreferences.getInstance();
-      //clear the token and user from SharedPreferenace
+
+      // Check and print information before deletion (for debugging)
+      final token = preferences.getString('auth_token');
+      final userJson = preferences.getString('user');
+      print("Token before sign out: $token");
+      print("User before sign out: $userJson");
+
+      // Remove all user data from SharedPreferences
       await preferences.remove('auth_token');
       await preferences.remove('user');
-      //clear the user state
+
+      // Verify the deletion was successful
+      final checkToken = preferences.getString('auth_token');
+      final checkUser = preferences.getString('user');
+      print("Token after sign out: $checkToken");
+      print("User after sign out: $checkUser");
+
+      // Clear user data from provider
       providerContainer.read(userProvider.notifier).signOut();
 
-      //navigate the user back to the login screen
-
+      // Navigate user back to login screen
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
@@ -138,9 +157,10 @@ class AuthController {
         (route) => false,
       );
 
-      showSnackBar(context, 'signout successfully');
+      showSnackBar(context, 'Signed out successfully');
     } catch (e) {
-      showSnackBar(context, "error signing out");
+      print("Error signing out: $e");
+      showSnackBar(context, "Error signing out, please try again");
     }
   }
 
@@ -153,14 +173,13 @@ class AuthController {
     required String locality,
   }) async {
     try {
-      //Make an HTTP PUT request to update user's state, city and locality
+      print("Đang cập nhật địa chỉ cho ID: $id");
+
       final http.Response response = await http.put(
         Uri.parse('$uri/api/users/$id'),
-        //set the header for the request to specify   that the content  is Json
         headers: <String, String>{
           "Content-Type": 'application/json; charset=UTF-8',
         },
-        //Encode the update data(state, city and locality) AS  Json object
         body: jsonEncode({'state': state, 'city': city, 'locality': locality}),
       );
 
@@ -168,29 +187,31 @@ class AuthController {
         response: response,
         context: context,
         onSuccess: () async {
-          //Decode the updated user data from the response body
-          //this converts the json String response into Dart Map
           final updatedUser = jsonDecode(response.body);
-          //Access Shared preference for local data storage
-          //shared preferences allow us to store data persisitently on the the device
+          print("Dữ liệu người dùng đã cập nhật: $updatedUser");
+
           SharedPreferences preferences = await SharedPreferences.getInstance();
-          //Encode the update user data as json String
-          //this prepares the data for storage in shared preference
           final userJson = jsonEncode(updatedUser);
 
-          //update the application state with the updated user data  using Riverpod
-          //this ensures the app reflects the most recent user data
+          // Kiểm tra trước khi cập nhật
+          final oldUserJson = preferences.getString('user');
+          print("User cũ: $oldUserJson");
+          print("User mới: $userJson");
+
+          // Lưu dữ liệu mới
+          await preferences.setString('user', userJson);
+
+          // Cập nhật provider
           providerContainer.read(userProvider.notifier).setUser(userJson);
 
-          //store the updated user data in shared preference  for future user
-          //this allows the app to retrive the user data  even after the app restarts
-          await preferences.setString('user', userJson);
+          // Kiểm tra sau khi cập nhật
+          final verifyJson = preferences.getString('user');
+          print("Đã lưu user: $verifyJson");
         },
       );
     } catch (e) {
-      //catch any error that occure during the proccess
-      //show an error message to the user if the update fails
-      showSnackBar(context, 'Error updating location');
+      print("Lỗi cập nhật địa chỉ: $e");
+      showSnackBar(context, 'Lỗi cập nhật địa chỉ');
     }
   }
 }

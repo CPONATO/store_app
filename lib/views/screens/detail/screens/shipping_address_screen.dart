@@ -370,6 +370,12 @@ class _ShippingAddressScreenState extends ConsumerState<ShippingAddressScreen> {
 
   Widget _buildBottomBar() {
     final user = ref.read(userProvider);
+    final updateUser = ref.read(userProvider.notifier);
+    print("Dữ liệu người dùng trong ShippingAddressScreen:");
+    print("ID: ${user!.id}");
+    print("Email: ${user.email}");
+    print("Họ tên: ${user.fullName}");
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -387,30 +393,37 @@ class _ShippingAddressScreenState extends ConsumerState<ShippingAddressScreen> {
         child: ElevatedButton(
           onPressed: () async {
             if (_formkey.currentState!.validate()) {
-              print('data');
-              // Form is valid, save data
-              _authController.updateUserLocation(
-                context: context,
-                id: user!.id,
-                state: state,
-                city: city,
-                locality: locality,
-              );
+              print('Updating address for user ID: ${user.id}');
+              _authController
+                  .updateUserLocation(
+                    context: context,
+                    id: user.id,
+                    state: state,
+                    city: city,
+                    locality: locality,
+                  )
+                  .whenComplete(() {
+                    updateUser.recreateUserState(
+                      state: state,
+                      city: city,
+                      locality: locality,
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text('Address saved successfully!'),
+                        backgroundColor: Colors.green[600],
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    );
+
+                    // Pop back to previous screen
+                    Navigator.pop(context);
+                  });
 
               // Provide feedback to user
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: const Text('Address saved successfully!'),
-                  backgroundColor: Colors.green[600],
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              );
-
-              // Pop back to previous screen
-              Navigator.pop(context);
             } else {
               print('Not Valid');
 

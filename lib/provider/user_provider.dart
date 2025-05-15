@@ -24,12 +24,34 @@ class UserProvider extends StateNotifier<User?> {
   //mothod to set user state from json\
   //purpose update the user state base on json String respresentation of use onject
   void setUser(String userJson) {
-    state = User.fromJson(userJson);
+    print("userJson được truyền vào setUser: $userJson");
+    final parsedUser = User.fromJson(userJson);
+    print("ID sau khi parse: ${parsedUser.id}");
+    state = parsedUser;
   }
 
   //mothod to clear user state
   void signOut() {
     state = null;
+  }
+
+  void recreateUserState({
+    required String state,
+    required String city,
+    required String locality,
+  }) {
+    if (this.state != null) {
+      this.state = User(
+        id: this.state!.id,
+        fullName: this.state!.fullName,
+        email: this.state!.email,
+        state: state,
+        city: city,
+        locality: locality,
+        password: this.state!.password,
+        token: this.state!.token,
+      );
+    }
   }
 }
 

@@ -86,6 +86,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   }
 
   Widget _buildAddressCard() {
+    final user = ref.watch(userProvider);
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
@@ -147,17 +149,47 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                         ),
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                        'United States',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      Text(
-                        'Enter your city and address details',
-                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                      ),
+                      user!.state.isNotEmpty
+                          ? Text(
+                            user.state,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          )
+                          : Text(
+                            'United States',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                      user.city.isNotEmpty
+                          ? Text(
+                            user.city,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                            ),
+                          )
+                          : const SizedBox.shrink(),
+
+                      const SizedBox(height: 2),
+                      user.locality.isNotEmpty
+                          ? Text(
+                            user.locality,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                            ),
+                          )
+                          : Text(
+                            'Enter your city and address details',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                            ),
+                          ),
                     ],
                   ),
                 ),

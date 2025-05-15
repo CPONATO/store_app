@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -28,17 +29,38 @@ class MyApp extends ConsumerWidget {
   const MyApp({super.key});
   //method to check the token and set the user data if available
   Future<void> _checkTokenAndSetUser(WidgetRef ref) async {
-    //obtain and istance if sharedpreferebce for local data storage
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    //retrive the auth token and user data stored locally
     String? token = preferences.getString('auth_token');
     String? userJson = preferences.getString('user');
 
-    //if both token and user data are avaible then updater user state
+    print("Token từ SharedPreferences: $token");
+    print("userJson từ SharedPreferences: $userJson");
 
+    // Kiểm tra cả token và userJson đều tồn tại
     if (token != null && userJson != null) {
-      ref.read(userProvider.notifier).setUser(userJson);
+      try {
+        // Phân tích dữ liệu người dùng
+        final userData = jsonDecode(userJson);
+        print("ID người dùng từ SharedPreferences: ${userData['_id']}");
+
+        // Xác minh token và ID người dùng khớp nhau (nếu có thể)
+        // Đây là một kiểm tra đơn giản, bạn có thể cần phương pháp khác tùy thuộc vào cấu trúc token
+
+        // Cập nhật provider
+        ref.read(userProvider.notifier).setUser(userJson);
+      } catch (e) {
+        print("Lỗi khi phân tích dữ liệu người dùng: $e");
+        // Xóa dữ liệu không hợp lệ
+        await preferences.remove('auth_token');
+        await preferences.remove('user');
+        ref.read(userProvider.notifier).signOut();
+      }
     } else {
+      // Nếu một trong hai thiếu, xóa cả hai để tránh trạng thái không nhất quán
+      if (token != null || userJson != null) {
+        await preferences.remove('auth_token');
+        await preferences.remove('user');
+      }
       ref.read(userProvider.notifier).signOut();
     }
   }

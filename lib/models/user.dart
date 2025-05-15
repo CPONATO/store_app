@@ -44,6 +44,9 @@ class User {
   //purpose - manipulation and User: once the data is converted to a User object it can be easily manipulacted and use within the application
   //
   factory User.fromMap(Map<String, dynamic> map) {
+    print("Dữ liệu người dùng từ map: $map");
+    print("ID từ map: ${map['_id']}");
+
     return User(
       id: map['_id'] as String? ?? "",
       fullName: map['fullName'] as String? ?? "",
