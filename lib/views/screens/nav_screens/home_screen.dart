@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shop_app/views/screens/detail/screens/widgets/popular_product_widget.dart';
+import 'package:shop_app/views/screens/nav_screens/widgets/popular_product_widget.dart';
 import 'package:shop_app/views/screens/nav_screens/widgets/banner_widget.dart';
 import 'package:shop_app/views/screens/nav_screens/widgets/category_item_widget.dart';
 import 'package:shop_app/views/screens/nav_screens/widgets/header_widget.dart';
@@ -10,20 +10,63 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            HeaderWidget(),
-            BannerWidget(),
-            CategoryItemWidget(),
-            ReuseableTextWidget(
-              title: 'Popular Products',
-              subTitle: 'View All',
-            ),
-            PopularProductWidget(),
-          ],
+    return Scaffold(
+      backgroundColor: Colors.grey[100], // Consistent background color
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const HeaderWidget(),
+              // Custom welcome section
+              _buildWelcomeSection(),
+              const BannerWidget(),
+              const Padding(
+                padding: EdgeInsets.fromLTRB(16, 20, 16, 8),
+                child: ReuseableTextWidget(
+                  title: 'Categories',
+                  subTitle: 'View All',
+                ),
+              ),
+              const CategoryItemWidget(),
+              const SizedBox(height: 16),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: ReuseableTextWidget(
+                  title: 'Popular Products',
+                  subTitle: 'View All',
+                ),
+              ),
+              const SizedBox(height: 8),
+              const PopularProductWidget(),
+              const SizedBox(height: 24),
+            ],
+          ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildWelcomeSection() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Hello, Welcome',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.blue[800],
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Discover the perfect items for you',
+            style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+          ),
+        ],
       ),
     );
   }
