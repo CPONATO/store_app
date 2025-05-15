@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -6,8 +8,19 @@ import 'package:shop_app/views/screens/authentication_screens/login_screen.dart'
 import 'package:shop_app/views/screens/main_screen.dart';
 
 void main() {
-  //run flutter app wrapped in providerscrope to manage state
+  // Bỏ qua xác minh chứng chỉ SSL (CHỈ DÙNG CHO MÔI TRƯỜNG PHÁT TRIỂN)
+  HttpOverrides.global = MyHttpOverrides();
+
   runApp(const ProviderScope(child: MyApp()));
+}
+
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
+  }
 }
 
 //root widget of application a consumerWidget to consume state chage
