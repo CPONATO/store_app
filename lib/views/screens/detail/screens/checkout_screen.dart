@@ -10,7 +10,7 @@ class CheckoutScreen extends ConsumerStatefulWidget {
   const CheckoutScreen({super.key});
 
   @override
-  _CheckoutScreenState createState() => _CheckoutScreenState();
+  ConsumerState<CheckoutScreen> createState() => _CheckoutScreenState();
 }
 
 class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
@@ -20,7 +20,6 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   Widget build(BuildContext context) {
     final cartData = ref.read(cartProvider);
     final totalAmount = ref.read(cartProvider.notifier).calculateTotalAmount();
-    final user = ref.watch(userProvider);
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
@@ -140,25 +139,34 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Add or Edit Address',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue[800],
-                        ),
-                      ),
-                      const SizedBox(height: 4),
                       user!.state.isNotEmpty
+                          ? Text(
+                            'Address',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue[800],
+                            ),
+                          )
+                          : Text(
+                            'Add or Edit Address',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue[800],
+                            ),
+                          ),
+                      const SizedBox(height: 4),
+                      user.state.isNotEmpty
                           ? Text(
                             user.state,
                             style: TextStyle(
-                              fontSize: 14,
+                              fontSize: 16,
                               fontWeight: FontWeight.w600,
                             ),
                           )
                           : Text(
-                            'United States',
+                            'Enter your state',
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
@@ -168,7 +176,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                           ? Text(
                             user.city,
                             style: TextStyle(
-                              fontSize: 12,
+                              fontSize: 14,
                               color: Colors.grey[600],
                             ),
                           )

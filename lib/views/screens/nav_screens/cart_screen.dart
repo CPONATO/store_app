@@ -395,14 +395,17 @@ class _CartScreenState extends ConsumerState<CartScreen> {
             SizedBox(width: 20),
             Expanded(
               child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const CheckoutScreen(),
-                    ),
-                  );
-                },
+                onPressed:
+                    totalAmount == 0.0
+                        ? null
+                        : () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const CheckoutScreen(),
+                            ),
+                          );
+                        },
                 style: ElevatedButton.styleFrom(
                   backgroundColor:
                       isCheckoutEnabled ? Colors.blue[700] : Colors.grey[400],

@@ -65,18 +65,23 @@ class ProductItemWidget extends StatelessWidget {
               product.productName,
               style: const TextStyle(
                 overflow: TextOverflow.ellipsis,
-                fontSize: 14,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
               ),
             ),
-            const SizedBox(height: 4),
+
             Text(
               product.category,
+              style: TextStyle(fontSize: 14, color: Colors.grey),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              '\$${product.productPrice.toStringAsFixed(2)}',
               style: TextStyle(
-                fontSize: 14,
+                color: Colors.red,
+                fontSize: 15,
                 fontWeight: FontWeight.bold,
-                color: Colors.grey,
               ),
             ),
           ],

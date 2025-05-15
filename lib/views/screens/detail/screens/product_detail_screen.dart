@@ -24,7 +24,9 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final _cartProvider = ref.read(cartProvider.notifier);
+    // Lấy notifier từ provider để gọi các phương thức
+    final cartProviderNotifier = ref.read(cartProvider.notifier);
+
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
@@ -34,9 +36,9 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
           icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(
+        title: const Text(
           'Product Details',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
             color: Colors.white,
@@ -69,7 +71,10 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [_buildImageGallery(), _buildProductDetails(_cartProvider)],
+          children: [
+            _buildImageGallery(),
+            _buildProductDetails(cartProviderNotifier),
+          ],
         ),
       ),
     );
@@ -217,7 +222,13 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     );
   }
 
-  Widget _buildProductDetails(dynamic cartProvider) {
+  Widget _buildProductDetails(CartNotifier cartProviderNotifier) {
+    // Lấy trực tiếp trạng thái của provider (Map<String, Cart>)
+    final cartData = ref.watch(cartProvider);
+
+    // Kiểm tra sản phẩm có trong giỏ hàng chưa
+    final isInCart = cartData.containsKey(widget.product.id);
+
     return Container(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -418,40 +429,46 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             children: [
               Expanded(
                 child: ElevatedButton.icon(
-                  onPressed: () {
-                    cartProvider.addProductToCart(
-                      productName: widget.product.productName,
-                      productPrice: widget.product.productPrice,
-                      category: widget.product.category,
-                      image: widget.product.images,
-                      vendorId: widget.product.vendorId,
-                      productQuantity: widget.product.quantity,
-                      quantity: 1,
-                      productId: widget.product.id,
-                      description: widget.product.description,
-                      fullName: widget.product.fullName,
-                    );
+                  onPressed:
+                      isInCart
+                          ? null // Vô hiệu hóa nút khi sản phẩm đã trong giỏ hàng
+                          : () {
+                            cartProviderNotifier.addProductToCart(
+                              productName: widget.product.productName,
+                              productPrice: widget.product.productPrice,
+                              category: widget.product.category,
+                              image: widget.product.images,
+                              vendorId: widget.product.vendorId,
+                              productQuantity: widget.product.quantity,
+                              quantity: 1,
+                              productId: widget.product.id,
+                              description: widget.product.description,
+                              fullName: widget.product.fullName,
+                            );
 
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Row(
-                          children: [
-                            Icon(Icons.check_circle, color: Colors.green[100]),
-                            const SizedBox(width: 12),
-                            const Text('Added to cart'),
-                          ],
-                        ),
-                        backgroundColor: Colors.blue[700],
-                        duration: const Duration(seconds: 2),
-                        behavior: SnackBarBehavior.floating,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    );
-                  },
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.check_circle,
+                                      color: Colors.green[100],
+                                    ),
+                                    const SizedBox(width: 12),
+                                    const Text('Added to cart'),
+                                  ],
+                                ),
+                                backgroundColor: Colors.blue[700],
+                                duration: const Duration(seconds: 2),
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                            );
+                          },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue[700],
+                    backgroundColor: isInCart ? Colors.grey : Colors.blue[700],
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
@@ -459,9 +476,12 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                     ),
                   ),
                   icon: const Icon(CupertinoIcons.cart_badge_plus),
-                  label: const Text(
-                    'Add to Cart',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  label: Text(
+                    isInCart ? 'Already in Cart' : 'Add to Cart',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),

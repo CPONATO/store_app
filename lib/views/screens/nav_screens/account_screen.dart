@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shop_app/controllers/auth_controller.dart';
 import 'package:shop_app/provider/user_provider.dart';
+import 'package:shop_app/views/screens/detail/screens/order_screen.dart';
 import 'package:shop_app/views/screens/detail/screens/shipping_address_screen.dart';
 
 class AccountScreen extends ConsumerWidget {
@@ -205,12 +206,19 @@ class AccountScreen extends ConsumerWidget {
           ),
           const Divider(height: 1),
           _buildListTile(
-            title: 'Phone Number',
-            subtitle: 'Not added',
-            icon: CupertinoIcons.phone_fill,
+            title: 'Order',
+            subtitle: 'Your Orders',
+            icon: CupertinoIcons.cart,
             iconColor: Colors.orange[700]!,
             onTap: () {
-              // Navigate to add phone number if needed
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return OrderScreen();
+                  },
+                ),
+              );
             },
           ),
         ],

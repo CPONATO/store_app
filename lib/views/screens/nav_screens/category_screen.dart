@@ -235,7 +235,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
                     final subcategory = _subcategegories[index];
                     return SubcategoryTileWidget(
                       image: subcategory.image,
-                      title: subcategory.categoryName,
+                      title:
+                          subcategory
+                              .subCategoryName, // Changed from categoryName to name
                     );
                   },
                 ),

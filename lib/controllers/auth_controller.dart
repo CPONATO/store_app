@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shop_app/global_variables.dart';
@@ -9,9 +8,9 @@ import 'package:shop_app/models/user.dart';
 import 'package:shop_app/provider/user_provider.dart';
 import 'package:shop_app/services/manage_http_response.dart';
 import 'package:shop_app/views/screens/authentication_screens/login_screen.dart';
-import 'package:shop_app/views/screens/main_screen.dart';
+import 'package:shop_app/main.dart' show providerContainer;
 
-final providerContainer = ProviderContainer();
+import 'package:shop_app/views/screens/main_screen.dart';
 
 class AuthController {
   Future<void> signUpUsers({
@@ -78,82 +77,61 @@ class AuthController {
         response: response,
         context: context,
         onSuccess: () async {
+          // Đảm bảo xóa dữ liệu cũ trước
           SharedPreferences preferences = await SharedPreferences.getInstance();
+          await preferences.remove('auth_token');
+          await preferences.remove('user');
 
-          // Lấy dữ liệu từ phản hồi
+          // Đặt lại trạng thái người dùng trong provider
+          providerContainer.read(userProvider.notifier).signOut();
+
+          // Lấy dữ liệu người dùng mới
           final userData = jsonDecode(response.body)['user'];
           final token = jsonDecode(response.body)['token'];
           final userJson = jsonEncode(userData);
 
-          try {
-            // Xóa dữ liệu cũ trước khi lưu dữ liệu mới
-            await preferences.remove('auth_token');
-            await preferences.remove('user');
+          // Lưu dữ liệu mới
+          await preferences.setString('auth_token', token);
+          await preferences.setString('user', userJson);
 
-            // Lưu dữ liệu mới
-            await preferences.setString('auth_token', token);
-            await preferences.setString('user', userJson);
+          // Thiết lập trạng thái người dùng mới
+          providerContainer.read(userProvider.notifier).setUser(userJson);
 
-            // Kiểm tra xem dữ liệu đã được lưu chính xác chưa
-            print("Đã lưu token: ${preferences.getString('auth_token')}");
-            print("Đã lưu user: ${preferences.getString('user')}");
+          // Điều hướng
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => MainScreen()),
+            (route) => false,
+          );
 
-            // Cập nhật provider
-            providerContainer.read(userProvider.notifier).setUser(userJson);
-
-            // Điều hướng
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => MainScreen()),
-              (route) => false,
-            );
-
-            showSnackBar(context, 'Đã đăng nhập');
-          } catch (e) {
-            print("Lỗi khi lưu dữ liệu đăng nhập: $e");
-            showSnackBar(
-              context,
-              'Đăng nhập thành công nhưng có lỗi khi lưu thông tin đăng nhập',
-            );
-          }
+          showSnackBar(context, 'Đã đăng nhập');
         },
       );
-    } catch (e) {}
+    } catch (e) {
+      print("Lỗi đăng nhập: $e");
+      showSnackBar(context, "Lỗi khi đăng nhập, vui lòng thử lại");
+    }
   }
-
   //Signout
 
   Future<void> signOutUSer({required BuildContext context}) async {
     try {
+      // Xóa dữ liệu từ SharedPreferences
       SharedPreferences preferences = await SharedPreferences.getInstance();
-
-      // Check and print information before deletion (for debugging)
-      final token = preferences.getString('auth_token');
-      final userJson = preferences.getString('user');
-      print("Token before sign out: $token");
-      print("User before sign out: $userJson");
-
-      // Remove all user data from SharedPreferences
       await preferences.remove('auth_token');
       await preferences.remove('user');
 
-      // Verify the deletion was successful
-      final checkToken = preferences.getString('auth_token');
-      final checkUser = preferences.getString('user');
-      print("Token after sign out: $checkToken");
-      print("User after sign out: $checkUser");
-
-      // Clear user data from provider
+      // Xóa dữ liệu từ provider - Đảm bảo phải gọi trước khi điều hướng
       providerContainer.read(userProvider.notifier).signOut();
 
-      // Navigate user back to login screen
+      // Kiểm tra xóa thành công
+      print("Token sau khi đăng xuất: ${preferences.getString('auth_token')}");
+      print("User sau khi đăng xuất: ${preferences.getString('user')}");
+
+      // Điều hướng đến màn hình đăng nhập sau khi đã xóa hết dữ liệu
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(
-          builder: (context) {
-            return const LoginScreen();
-          },
-        ),
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
         (route) => false,
       );
 

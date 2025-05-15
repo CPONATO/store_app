@@ -14,9 +14,49 @@ class ShippingAddressScreen extends ConsumerStatefulWidget {
 class _ShippingAddressScreenState extends ConsumerState<ShippingAddressScreen> {
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
   final AuthController _authController = AuthController();
-  late String state;
-  late String city;
-  late String locality;
+  final TextEditingController _stateController = TextEditingController();
+  final TextEditingController _cityController = TextEditingController();
+  final TextEditingController _localityController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    final user = ref.read(userProvider);
+
+    if (user != null) {
+      _stateController.text = user.state;
+      _cityController.text = user.city;
+      _localityController.text = user.locality;
+    }
+  }
+
+  _showLoadingDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(15),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+
+                SizedBox(width: 20),
+                Text(
+                  'Updating...',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -174,11 +214,7 @@ class _ShippingAddressScreenState extends ConsumerState<ShippingAddressScreen> {
                     }
                     return null;
                   },
-                  onChanged: (value) {
-                    setState(() {
-                      state = value;
-                    });
-                  },
+                  controller: _stateController,
                   style: const TextStyle(fontSize: 16),
                   decoration: InputDecoration(
                     prefixIcon: Icon(
@@ -244,11 +280,7 @@ class _ShippingAddressScreenState extends ConsumerState<ShippingAddressScreen> {
                     }
                     return null;
                   },
-                  onChanged: (value) {
-                    setState(() {
-                      city = value;
-                    });
-                  },
+                  controller: _cityController,
                   style: const TextStyle(fontSize: 16),
                   decoration: InputDecoration(
                     prefixIcon: Icon(
@@ -314,11 +346,7 @@ class _ShippingAddressScreenState extends ConsumerState<ShippingAddressScreen> {
                     }
                     return null;
                   },
-                  onChanged: (value) {
-                    setState(() {
-                      locality = value;
-                    });
-                  },
+                  controller: _localityController,
                   style: const TextStyle(fontSize: 16),
                   decoration: InputDecoration(
                     prefixIcon: Icon(
@@ -393,20 +421,21 @@ class _ShippingAddressScreenState extends ConsumerState<ShippingAddressScreen> {
         child: ElevatedButton(
           onPressed: () async {
             if (_formkey.currentState!.validate()) {
+              _showLoadingDialog();
               print('Updating address for user ID: ${user.id}');
               _authController
                   .updateUserLocation(
                     context: context,
                     id: user.id,
-                    state: state,
-                    city: city,
-                    locality: locality,
+                    state: _stateController.text,
+                    city: _cityController.text,
+                    locality: _localityController.text,
                   )
                   .whenComplete(() {
                     updateUser.recreateUserState(
-                      state: state,
-                      city: city,
-                      locality: locality,
+                      state: _stateController.text,
+                      city: _cityController.text,
+                      locality: _localityController.text,
                     );
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
@@ -418,7 +447,8 @@ class _ShippingAddressScreenState extends ConsumerState<ShippingAddressScreen> {
                         ),
                       ),
                     );
-
+                    //close the dialog
+                    Navigator.pop(context);
                     // Pop back to previous screen
                     Navigator.pop(context);
                   });

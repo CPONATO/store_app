@@ -8,11 +8,17 @@ import 'package:shop_app/provider/user_provider.dart';
 import 'package:shop_app/views/screens/authentication_screens/login_screen.dart';
 import 'package:shop_app/views/screens/main_screen.dart';
 
+final providerContainer = ProviderContainer();
+
 void main() {
-  // Bỏ qua xác minh chứng chỉ SSL (CHỈ DÙNG CHO MÔI TRƯỜNG PHÁT TRIỂN)
   HttpOverrides.global = MyHttpOverrides();
 
-  runApp(const ProviderScope(child: MyApp()));
+  runApp(
+    UncontrolledProviderScope(
+      container: providerContainer,
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyHttpOverrides extends HttpOverrides {
@@ -30,38 +36,28 @@ class MyApp extends ConsumerWidget {
   //method to check the token and set the user data if available
   Future<void> _checkTokenAndSetUser(WidgetRef ref) async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
+
+    // Xóa bất kỳ trạng thái người dùng cũ nào có thể tồn tại
+    ref.read(userProvider.notifier).signOut();
+
     String? token = preferences.getString('auth_token');
     String? userJson = preferences.getString('user');
 
     print("Token từ SharedPreferences: $token");
     print("userJson từ SharedPreferences: $userJson");
 
-    // Kiểm tra cả token và userJson đều tồn tại
     if (token != null && userJson != null) {
       try {
-        // Phân tích dữ liệu người dùng
-        final userData = jsonDecode(userJson);
-        print("ID người dùng từ SharedPreferences: ${userData['_id']}");
-
-        // Xác minh token và ID người dùng khớp nhau (nếu có thể)
-        // Đây là một kiểm tra đơn giản, bạn có thể cần phương pháp khác tùy thuộc vào cấu trúc token
-
-        // Cập nhật provider
+        // Thiết lập trạng thái người dùng mới
         ref.read(userProvider.notifier).setUser(userJson);
       } catch (e) {
         print("Lỗi khi phân tích dữ liệu người dùng: $e");
-        // Xóa dữ liệu không hợp lệ
+
+        // Nếu có lỗi, xóa hết dữ liệu
         await preferences.remove('auth_token');
         await preferences.remove('user');
         ref.read(userProvider.notifier).signOut();
       }
-    } else {
-      // Nếu một trong hai thiếu, xóa cả hai để tránh trạng thái không nhất quán
-      if (token != null || userJson != null) {
-        await preferences.remove('auth_token');
-        await preferences.remove('user');
-      }
-      ref.read(userProvider.notifier).signOut();
     }
   }
 

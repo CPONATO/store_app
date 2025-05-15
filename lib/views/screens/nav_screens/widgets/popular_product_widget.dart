@@ -1,52 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shop_app/controllers/product_controller.dart';
-import 'package:shop_app/models/product.dart';
+import 'package:shop_app/provider/product_provider.dart';
 import 'package:shop_app/views/screens/nav_screens/widgets/product_item_widget.dart';
 
-class PopularProductWidget extends StatefulWidget {
+class PopularProductWidget extends ConsumerStatefulWidget {
   const PopularProductWidget({super.key});
 
   @override
-  State<PopularProductWidget> createState() => _PopularProductWidgetState();
+  _PopularProductWidgetState createState() => _PopularProductWidgetState();
 }
 
-class _PopularProductWidgetState extends State<PopularProductWidget> {
-  late Future<List<Product>> futurePopularProduct;
-
+class _PopularProductWidgetState extends ConsumerState<PopularProductWidget> {
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    futurePopularProduct = ProductController().loadPopularProduct();
+    _fetchProduct();
+  }
+
+  Future<void> _fetchProduct() async {
+    final ProductController productController = ProductController();
+    try {
+      final products = await productController.loadPopularProduct();
+      ref.read(producProvider.notifier).setProduct(products);
+    } catch (e) {
+      print('$e');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: futurePopularProduct,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Error ${snapshot.error}'));
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Center(child: Text('No Popular Products'));
-        } else {
-          final products = snapshot.data;
-          return SizedBox(
-            height: 250,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              physics: const AlwaysScrollableScrollPhysics(),
-              itemCount: products!.length,
-              itemBuilder: (context, index) {
-                final product = products[index];
-                return ProductItemWidget(product: product);
-              },
-            ),
-          );
-        }
-      },
+    final products = ref.watch(producProvider);
+    return SizedBox(
+      height: 250,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        physics: const AlwaysScrollableScrollPhysics(),
+        itemCount: products.length,
+        itemBuilder: (context, index) {
+          final product = products[index];
+          return ProductItemWidget(product: product);
+        },
+      ),
     );
   }
 }
