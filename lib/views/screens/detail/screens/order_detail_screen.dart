@@ -23,6 +23,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print("Order detail - Product ID: ${widget.order.productId}");
+
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
@@ -578,11 +580,15 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                                     onPressed: () {
                                       final review = _reviewController.text;
 
+                                      // Thêm log để kiểm tra
+                                      print(
+                                        "Reviewing product with ID: ${order.productId}",
+                                      );
+
                                       _productReviewController.uploadreview(
                                         buyerId: order.buyerId,
                                         email: order.email,
-                                        productId:
-                                            order.productId, // Thay vì order.id
+                                        productId: order.productId,
                                         rating: rating,
                                         fullName: order.fullName,
                                         review: review,

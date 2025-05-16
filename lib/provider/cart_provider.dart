@@ -22,6 +22,7 @@ class CartNotifier extends StateNotifier<Map<String, Cart>> {
     required String description,
     required String fullName,
   }) {
+    print("Adding product to cart with ID: $productId");
     if (state.containsKey(productId)) {
       state = {
         ...state,

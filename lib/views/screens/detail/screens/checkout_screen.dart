@@ -20,6 +20,12 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   @override
   Widget build(BuildContext context) {
     final cartData = ref.read(cartProvider);
+    print("Cart data: $cartData");
+
+    // Kiểm tra chi tiết từng sản phẩm trong giỏ hàng
+    cartData.forEach((key, value) {
+      print("Product ID: $key, Product Name: ${value.productName}");
+    });
     final totalAmount = ref.read(cartProvider.notifier).calculateTotalAmount();
     return Scaffold(
       backgroundColor: Colors.grey[100],
@@ -621,6 +627,12 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                               _cartProvider.getCartItems.entries,
                               (entries) {
                                 var item = entries.value;
+
+                                // Thêm log để kiểm tra
+                                print(
+                                  "Creating order with product ID: ${item.productId}",
+                                );
+
                                 _orderController.uploadOrders(
                                   id: '',
                                   fullName: ref.read(userProvider)!.fullName,
@@ -635,21 +647,21 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                                   image: item.image[0],
                                   buyerId: ref.read(userProvider)!.id,
                                   vendorId: item.vendorId,
-                                  productId: item.productId, // Thêm trường này
+                                  productId: item.productId,
                                   processing: true,
                                   delivered: false,
                                   context: context,
                                 );
                               },
                             );
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) {
-                                  return MainScreen();
-                                },
-                              ),
-                            );
+                            // Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(
+                            //     builder: (context) {
+                            //       return MainScreen();
+                            //     },
+                            //   ),
+                            // );
                           }
                         },
                         style: ElevatedButton.styleFrom(
