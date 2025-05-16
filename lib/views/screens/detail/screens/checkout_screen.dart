@@ -5,6 +5,7 @@ import 'package:shop_app/controllers/order_controller.dart';
 import 'package:shop_app/provider/cart_provider.dart';
 import 'package:shop_app/provider/user_provider.dart';
 import 'package:shop_app/views/screens/detail/screens/shipping_address_screen.dart';
+import 'package:shop_app/views/screens/main_screen.dart';
 
 class CheckoutScreen extends ConsumerStatefulWidget {
   const CheckoutScreen({super.key});
@@ -624,10 +625,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                                   id: '',
                                   fullName: ref.read(userProvider)!.fullName,
                                   email: ref.read(userProvider)!.email,
-                                  state: 'us', //ref.read(userProvider)!.state,
-                                  city: 'us2', //ref.read(userProvider)!.city,
-                                  locality:
-                                      '2us', //ref.read(userProvider)!.locality,
+                                  state: ref.read(userProvider)!.state,
+                                  city: ref.read(userProvider)!.city,
+                                  locality: ref.read(userProvider)!.locality,
                                   productName: item.productName,
                                   productPrice: item.productPrice,
                                   quantity: item.quantity,
@@ -640,6 +640,14 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                                   context: context,
                                 );
                               },
+                            );
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return MainScreen();
+                                },
+                              ),
                             );
                           }
                         },

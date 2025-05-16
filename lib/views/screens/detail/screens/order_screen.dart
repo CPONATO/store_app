@@ -16,6 +16,7 @@ class OrderScreen extends ConsumerStatefulWidget {
 
 class _OrderScreenState extends ConsumerState<OrderScreen> {
   bool _isLoading = true;
+  bool _isCriticalError = false; // Only for critical errors, not empty orders
   String? _errorMessage;
 
   @override
@@ -27,6 +28,7 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
   Future<void> _fetchOrders() async {
     setState(() {
       _isLoading = true;
+      _isCriticalError = false;
       _errorMessage = null;
     });
 
@@ -36,11 +38,26 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
       try {
         final orders = await orderController.loadOrders(buyerId: user.id);
         ref.read(orderProvider.notifier).setOrders(orders);
+
+        if (orders.isEmpty) {
+          print("No orders found for this user");
+        }
       } catch (e) {
-        setState(() {
-          _errorMessage = 'Could not load orders. Please try again.';
-        });
         print('Error fetching orders: $e');
+
+        // Important: Interpret the error as "no orders" rather than a critical error
+        if (e.toString().contains("No orders") ||
+            e.toString().contains("404") ||
+            e.toString().contains("empty")) {
+          // This is likely just "no orders available" - set empty list
+          ref.read(orderProvider.notifier).setOrders([]);
+        } else {
+          // This is a real error (like network failure, server error)
+          setState(() {
+            _isCriticalError = true;
+            _errorMessage = 'Could not load orders. Please try again.';
+          });
+        }
       } finally {
         setState(() {
           _isLoading = false;
@@ -51,6 +68,16 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
         _isLoading = false;
         _errorMessage = 'Please log in to view your orders';
       });
+    }
+  }
+
+  Future<void> _deleteOrder(String orderId) async {
+    final OrderController orderController = OrderController();
+    try {
+      await orderController.deleteOrders(id: orderId, context: context);
+      _fetchOrders();
+    } catch (e) {
+      print("Error Deleting Order: $e");
     }
   }
 
@@ -98,8 +125,8 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
         child:
             _isLoading
                 ? _buildLoadingState()
-                : _errorMessage != null
-                ? _buildErrorState()
+                : _isCriticalError
+                ? _buildErrorState() // Only show for critical errors
                 : orders.isEmpty
                 ? _buildEmptyState()
                 : _buildOrderList(orders),
@@ -131,7 +158,7 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
           Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
           const SizedBox(height: 16),
           Text(
-            _errorMessage ?? 'An error occurred',
+            _errorMessage ?? 'Could not load orders. Please try again.',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 16, color: Colors.grey[700]),
           ),
@@ -185,7 +212,7 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Text(
-              'Looks like you haven\'t made any orders yet. Start shopping and your orders will appear here.',
+              'You don\'t have any orders yet. Start shopping and your orders will appear here.',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 16, color: Colors.grey[600]),
             ),
@@ -465,6 +492,33 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
                     ),
 
                     const SizedBox(width: 8),
+                    TextButton.icon(
+                      onPressed: () {},
+                      icon: Icon(
+                        Icons.visibility_outlined,
+                        size: 16,
+                        color: const Color.fromARGB(255, 5, 151, 0),
+                      ),
+                      label: Text(
+                        'Review',
+                        style: TextStyle(
+                          color: const Color.fromARGB(255, 5, 151, 0),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      style: TextButton.styleFrom(
+                        backgroundColor: Colors.green[50],
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(width: 8),
 
                     // Delete button (conditional based on order status)
                     if (!order.delivered)
@@ -516,7 +570,7 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  // Implement delete order logic here
+                  _deleteOrder(order.id);
                   Navigator.of(ctx).pop();
                 },
                 style: ElevatedButton.styleFrom(

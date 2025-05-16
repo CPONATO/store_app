@@ -12,7 +12,9 @@ const productSchema = new mongoose.Schema({
   vendorId: { type: String, required: true },
   fullName: { type: String, required: true },
   popular: { type: Boolean, default: false },
-  recommend: { type: Boolean, default: false }
+  recommend: { type: Boolean, default: false },
+  averageRating:{type:Number,default:0},
+  totalRating:{type:Number,default:0}
 });
 const Product = mongoose.model("Product", productSchema);
 

@@ -304,6 +304,74 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       ),
                     ),
                     const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.amber[50],
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.amber[300]!, width: 1),
+                      ),
+                      child:
+                          widget.product.totalRating == 0
+                              ? Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.star_border_outlined,
+                                    color: Colors.amber[700],
+                                    size: 16,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'No ratings yet',
+                                    style: TextStyle(
+                                      color: Colors.amber[800],
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              )
+                              : Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  ...List.generate(
+                                    5,
+                                    (index) => Icon(
+                                      index <
+                                              (widget.product.averageRating
+                                                  .round())
+                                          ? Icons.star
+                                          : Icons.star_border,
+                                      color: Colors.amber[700],
+                                      size: 16,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    widget.product.averageRating
+                                        .toStringAsFixed(1),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.amber[900],
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 2),
+                                  Text(
+                                    "(${widget.product.totalRating})",
+                                    style: TextStyle(
+                                      color: Colors.amber[800],
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                    ),
+                    const SizedBox(width: 8),
                     Chip(
                       backgroundColor: Colors.grey[200],
                       label: Text(
@@ -440,7 +508,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                               image: widget.product.images,
                               vendorId: widget.product.vendorId,
                               productQuantity: widget.product.quantity,
-                              quantity: 1,
+                              quantity: widget.product.quantity,
                               productId: widget.product.id,
                               description: widget.product.description,
                               fullName: widget.product.fullName,
