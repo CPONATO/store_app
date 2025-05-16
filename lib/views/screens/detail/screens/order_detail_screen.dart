@@ -581,7 +581,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                                       _productReviewController.uploadreview(
                                         buyerId: order.buyerId,
                                         email: order.email,
-                                        productId: order.id,
+                                        productId:
+                                            order.productId, // Thay vì order.id
                                         rating: rating,
                                         fullName: order.fullName,
                                         review: review,

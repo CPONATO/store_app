@@ -635,6 +635,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                                   image: item.image[0],
                                   buyerId: ref.read(userProvider)!.id,
                                   vendorId: item.vendorId,
+                                  productId: item.productId, // Thêm trường này
                                   processing: true,
                                   delivered: false,
                                   context: context,

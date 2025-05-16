@@ -1,4 +1,4 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
+// lib/models/order.dart
 import 'dart:convert';
 
 class Order {
@@ -17,6 +17,8 @@ class Order {
   final String vendorId;
   final bool processing;
   final bool delivered;
+  // Thêm trường mới này
+  final String productId;
 
   Order({
     required this.id,
@@ -34,6 +36,8 @@ class Order {
     required this.vendorId,
     required this.processing,
     required this.delivered,
+    // Thêm tham số này
+    required this.productId,
   });
 
   Map<String, dynamic> toMap() {
@@ -53,6 +57,7 @@ class Order {
       'vendorId': vendorId,
       'processing': processing,
       'delivered': delivered,
+      'productId': productId, // Thêm trường này
     };
   }
 
@@ -73,6 +78,11 @@ class Order {
       vendorId: map['vendorId'] as String,
       processing: map['processing'] as bool,
       delivered: map['delivered'] as bool,
+      // Xử lý trường hợp thiếu productId, dùng id đơn hàng làm giá trị mặc định
+      productId:
+          map['productId'] != null
+              ? map['productId'] as String
+              : map['_id'] as String,
     );
   }
 

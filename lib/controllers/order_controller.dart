@@ -20,6 +20,7 @@ class OrderController {
     required String image,
     required String buyerId,
     required String vendorId,
+    required String productId, // Thêm tham số này
     required bool processing,
     required bool delivered,
     required context,
@@ -39,6 +40,7 @@ class OrderController {
         image: image,
         buyerId: buyerId,
         vendorId: vendorId,
+        productId: productId, // Thêm trường này
         processing: processing,
         delivered: delivered,
       );

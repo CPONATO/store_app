@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Category = require('./category');
 
+// backend_api/models/order.js
 const orderSchema = mongoose.Schema({
     fullName:{
         type:String,
@@ -14,7 +15,6 @@ const orderSchema = mongoose.Schema({
         type:String,
         required:true,
     },
-
     city:{
         type:String,
         required:true,
@@ -48,6 +48,11 @@ const orderSchema = mongoose.Schema({
         required:true,
     },
     vendorId:{
+        type:String,
+        required:true,
+    },
+    // Thêm trường productId
+    productId:{
         type:String,
         required:true,
     },

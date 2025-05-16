@@ -5,10 +5,27 @@ const orderRouter = express.Router();
 
 orderRouter.post('/api/orders',async(req,res)=>{
     try {
-        const {fullName, email,state,city,locality, productName,productPrice,quantity,category,image,buyerId,vendorId}= req.body;
+        const {fullName, email, state, city, locality, productName, productPrice, quantity, category, image, buyerId, vendorId, productId}= req.body; // Thêm productId
         const createdAt = new Date().getTime();
 
-        const order = new Order({fullName, email,state,city,locality, productName,productPrice,quantity,category,image,buyerId,vendorId,createdAt});
+        const order = new Order({
+            fullName, 
+            email,
+            state,
+            city,
+            locality, 
+            productName,
+            productPrice,
+            quantity,
+            category,
+            image,
+            buyerId,
+            vendorId,
+            productId, // Thêm trường này
+            processing: true,
+            delivered: false,
+            createdAt
+        });
         await order.save();
         return res.status(201).json(order)
     } catch (e) {
