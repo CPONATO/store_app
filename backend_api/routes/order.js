@@ -1,9 +1,11 @@
 const express = require('express');
 const Order = require('../models/order');
-
+const {auth,vendorAuth} = require('../middleware/auth');
 const orderRouter = express.Router();
 
-orderRouter.post('/api/orders',async(req,res)=>{
+
+
+orderRouter.post('/api/orders',auth,async(req,res)=>{
     try {
         const {fullName, email, state, city, locality, productName, productPrice, quantity, category, image, buyerId, vendorId, productId}= req.body; // Thêm productId
         const createdAt = new Date().getTime();
@@ -21,7 +23,7 @@ orderRouter.post('/api/orders',async(req,res)=>{
             image,
             buyerId,
             vendorId,
-            productId, // Thêm trường này
+            productId, // Thêm productId vào đây
             processing: true,
             delivered: false,
             createdAt
@@ -33,7 +35,7 @@ orderRouter.post('/api/orders',async(req,res)=>{
     }
 });
 
-orderRouter.get('/api/orders/:buyerId',async(req,res)=>{
+orderRouter.get('/api/orders/:buyerId',auth,async(req,res)=>{
     try {
         const{buyerId} = req.params;
         const orders= await Order.find({buyerId});
@@ -46,7 +48,7 @@ orderRouter.get('/api/orders/:buyerId',async(req,res)=>{
         res.status(500).json({error:e.message});
     }
 });
-orderRouter.delete('/api/orders/:id',async(req,res)=>{
+orderRouter.delete('/api/orders/:id',auth,async(req,res)=>{
     try {
         //the id in here is equal to _id in mongooseDB
         const {id} = req.params;
@@ -62,7 +64,7 @@ orderRouter.delete('/api/orders/:id',async(req,res)=>{
 });
 
 
-orderRouter.get('/api/orders/vendors/:vendorId',async(req,res)=>{
+orderRouter.get('/api/orders/vendors/:vendorId',auth,vendorAuth,async(req,res)=>{
     try {
         const{vendorId} = req.params;
         const orders= await Order.find({vendorId});
@@ -113,5 +115,15 @@ orderRouter.patch('/api/orders/:id/processing', async(req, res) => {
         res.status(500).json({ error: e.message });
     }
 });
+
+orderRouter.get('/api/orders',async(req,res)=>{
+    try {
+        const orders = await Order.find();
+        return res.status(200).json(orders);
+    } catch (e) {
+    res.status(500).json({ error: e.message });
+
+    }
+})
 
 module.exports = orderRouter;

@@ -24,7 +24,7 @@ class ProductReviewController {
         review: review,
       );
       http.Response response = await http.post(
-        Uri.parse("$uri/api/review"),
+        Uri.parse("$uri/api/produc-review"),
         body: productReview.toJson(),
         headers: <String, String>{
           "Content-Type": 'application/json; charset=UTF-8',
@@ -38,6 +38,8 @@ class ProductReviewController {
           showSnackBar(context, "Review Uploaded");
         },
       );
-    } catch (e) {}
+    } catch (e) {
+      throw Exception('$e');
+    }
   }
 }

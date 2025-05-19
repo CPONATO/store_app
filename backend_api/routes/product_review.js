@@ -3,7 +3,7 @@ const ProductReview = require('../models/product_review');
 const Product = require('../models/product');
 const productReviewRouter = express.Router();
 
-productReviewRouter.post('/api/review', async (req, res)=> {
+productReviewRouter.post('/api/produc-review', async (req, res)=> {
     try {
         const {buyerId, email, fullName, productId, rating, review,} = req.body;
         
@@ -39,5 +39,13 @@ productReviewRouter.post('/api/review', async (req, res)=> {
         res.status(500).json({error: e.message});
     }
 });
-
+productReviewRouter.get('/api/review',async(req,res)=>{
+    try {
+        const reviews = await ProductReview.find();
+        return res.status(200).json(reviews);
+    } catch (e) {
+        console.error(`Error in review API: ${e.message}`);
+        res.status(500).json({error: e.message});
+    }
+});
 module.exports = productReviewRouter;

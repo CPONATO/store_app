@@ -1,8 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shop_app/controllers/product_controller.dart';
 import 'package:shop_app/models/product.dart';
 import 'package:shop_app/provider/cart_provider.dart';
+import 'package:shop_app/provider/favorite_provider.dart';
+import 'package:shop_app/provider/related_product_provider.dart';
+import 'package:shop_app/services/manage_http_response.dart';
+import 'package:shop_app/views/screens/nav_screens/widgets/product_item_widget.dart';
+import 'package:shop_app/views/screens/nav_screens/widgets/reuseable_text_widget.dart';
 
 class ProductDetailScreen extends ConsumerStatefulWidget {
   final Product product;
@@ -13,6 +19,25 @@ class ProductDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _fetchProduct();
+  }
+
+  Future<void> _fetchProduct() async {
+    final ProductController productController = ProductController();
+    try {
+      final products = await productController.loadRelatedProductBySubcategory(
+        widget.product.id,
+      );
+      ref.read(relatedProductProvider.notifier).setProduct(products);
+    } catch (e) {
+      print('$e');
+    }
+  }
+
   int _selectedImageIndex = 0;
   final PageController _pageController = PageController();
 
@@ -24,9 +49,11 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Lấy notifier từ provider để gọi các phương thức
+    final favoriteProviderData = ref.watch(favoriteProvider.notifier);
     final cartProviderNotifier = ref.read(cartProvider.notifier);
+    ref.watch(favoriteProvider);
 
+    // Sử dụng Scaffold với bottomNavigationBar để giữ nút ở dưới cùng
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
@@ -50,8 +77,30 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             onPressed: () {},
           ),
           IconButton(
-            icon: const Icon(CupertinoIcons.heart, color: Colors.white),
-            onPressed: () {},
+            icon:
+                favoriteProviderData.getFavoriteItems.containsKey(
+                      widget.product.id,
+                    )
+                    ? Icon(
+                      CupertinoIcons.heart_fill,
+                      color: const Color.fromARGB(255, 253, 0, 97),
+                    )
+                    : Icon(CupertinoIcons.heart, color: Colors.white),
+            onPressed: () {
+              favoriteProviderData.addProductToFavorite(
+                productName: widget.product.productName,
+                productPrice: widget.product.productPrice,
+                category: widget.product.category,
+                image: widget.product.images,
+                vendorId: widget.product.vendorId,
+                productQuantity: widget.product.quantity,
+                quantity: 1,
+                productId: widget.product.id,
+                description: widget.product.description,
+                fullName: widget.product.fullName,
+              );
+              showSnackBar(context, '${widget.product.productName} added');
+            },
           ),
         ],
         bottom: PreferredSize(
@@ -68,12 +117,113 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
           ),
         ),
       ),
+      // Phần nội dung có thể cuộn
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildImageGallery(),
-            _buildProductDetails(cartProviderNotifier),
+            _buildProductDetails(),
+            // Thêm padding phía dưới để tránh nội dung bị che bởi thanh nút
+            SizedBox(height: 80),
+          ],
+        ),
+      ),
+      // Phần nút cố định ở dưới
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.2),
+              spreadRadius: 1,
+              blurRadius: 10,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  // In ra toàn bộ thông tin sản phẩm
+                  print("Product details:");
+                  print(
+                    "ID: '${widget.product.id}'",
+                  ); // Có dấu nháy để thấy khoảng trắng
+                  print("Name: ${widget.product.productName}");
+                  print("Price: ${widget.product.productPrice}");
+                  print("Category: ${widget.product.category}");
+                  print("Images: ${widget.product.images}");
+
+                  cartProviderNotifier.addProductToCart(
+                    productName: widget.product.productName,
+                    productPrice: widget.product.productPrice,
+                    category: widget.product.category,
+                    image: widget.product.images,
+                    vendorId: widget.product.vendorId,
+                    productQuantity: widget.product.quantity,
+                    quantity: 1,
+                    productId: widget.product.id,
+                    description: widget.product.description,
+                    fullName: widget.product.fullName,
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Row(
+                        children: [
+                          Icon(Icons.check_circle, color: Colors.green[100]),
+                          const SizedBox(width: 12),
+                          const Text('Added to cart'),
+                        ],
+                      ),
+                      backgroundColor: Colors.blue[700],
+                      duration: const Duration(seconds: 2),
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue[700],
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                icon: const Icon(CupertinoIcons.cart_badge_plus),
+                label: const Text(
+                  'Add to Cart',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  // Buy Now Action
+                },
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(color: Colors.blue[700]!),
+                  foregroundColor: Colors.blue[700],
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                icon: const Icon(Icons.shopping_bag_outlined),
+                label: const Text(
+                  'Buy Now',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -222,12 +372,8 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     );
   }
 
-  Widget _buildProductDetails(CartNotifier cartProviderNotifier) {
-    // Lấy trực tiếp trạng thái của provider (Map<String, Cart>)
-    final cartData = ref.watch(cartProvider);
-
-    // Kiểm tra sản phẩm có trong giỏ hàng chưa
-    final isInCart = cartData.containsKey(widget.product.id);
+  Widget _buildProductDetails() {
+    final relatedProduct = ref.watch(relatedProductProvider);
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -492,89 +638,18 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
 
           const SizedBox(height: 24),
 
-          // Action buttons
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed:
-                      isInCart
-                          ? null // Vô hiệu hóa nút khi sản phẩm đã trong giỏ hàng
-                          : () {
-                            cartProviderNotifier.addProductToCart(
-                              productName: widget.product.productName,
-                              productPrice: widget.product.productPrice,
-                              category: widget.product.category,
-                              image: widget.product.images,
-                              vendorId: widget.product.vendorId,
-                              productQuantity: widget.product.quantity,
-                              quantity: widget.product.quantity,
-                              productId: widget.product.id,
-                              description: widget.product.description,
-                              fullName: widget.product.fullName,
-                            );
-
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.check_circle,
-                                      color: Colors.green[100],
-                                    ),
-                                    const SizedBox(width: 12),
-                                    const Text('Added to cart'),
-                                  ],
-                                ),
-                                backgroundColor: Colors.blue[700],
-                                duration: const Duration(seconds: 2),
-                                behavior: SnackBarBehavior.floating,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                            );
-                          },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isInCart ? Colors.grey : Colors.blue[700],
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  icon: const Icon(CupertinoIcons.cart_badge_plus),
-                  label: Text(
-                    isInCart ? 'Already in Cart' : 'Add to Cart',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () {
-                    // Buy Now Action
-                  },
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: Colors.blue[700]!),
-                    foregroundColor: Colors.blue[700],
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  icon: const Icon(Icons.shopping_bag_outlined),
-                  label: const Text(
-                    'Buy Now',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-            ],
+          ReuseableTextWidget(title: 'Related Products', subTitle: ''),
+          SizedBox(
+            height: 290,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              physics: const AlwaysScrollableScrollPhysics(),
+              itemCount: relatedProduct.length,
+              itemBuilder: (context, index) {
+                final product = relatedProduct[index];
+                return ProductItemWidget(product: product);
+              },
+            ),
           ),
         ],
       ),

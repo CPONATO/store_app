@@ -51,7 +51,7 @@ class Product {
     try {
       print("Raw map data: $map");
       return Product(
-        id: map['id'] ?? '', // Xử lý null
+        id: map['_id'] ?? '', // Xử lý null
         productName: map['productName'] ?? '', // Xử lý null
         productPrice: map['productPrice'] ?? 0, // Xử lý null
         quantity: map['quantity'] ?? 0, // Xử lý null

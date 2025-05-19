@@ -1,20 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shop_app/models/product.dart';
+import 'package:shop_app/provider/favorite_provider.dart';
 import 'package:shop_app/views/screens/detail/screens/product_detail_screen.dart';
 
-class ProductItemWidget extends StatelessWidget {
+class ProductItemWidget extends ConsumerStatefulWidget {
   final Product product;
 
   const ProductItemWidget({super.key, required this.product});
 
   @override
+  _ProductItemWidgetState createState() => _ProductItemWidgetState();
+}
+
+class _ProductItemWidgetState extends ConsumerState<ProductItemWidget> {
+  @override
   Widget build(BuildContext context) {
+    final favoriteProviderData = ref.watch(favoriteProvider.notifier);
+    ref.watch(favoriteProvider);
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ProductDetailScreen(product: product),
+            builder: (context) => ProductDetailScreen(product: widget.product),
           ),
         );
       },
@@ -50,7 +59,7 @@ class ProductItemWidget extends StatelessWidget {
                     width: double.infinity,
                     color: const Color(0xFFF5F6F8),
                     child: Image.network(
-                      product.images[0],
+                      widget.product.images[0],
                       height: 170,
                       width: 170,
                       fit: BoxFit.cover,
@@ -88,39 +97,24 @@ class ProductItemWidget extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: Icon(
-                      Icons.favorite_border,
-                      size: 16,
-                      color: Colors.red[400],
-                    ),
+                    child:
+                        favoriteProviderData.getFavoriteItems.containsKey(
+                              widget.product.id,
+                            )
+                            ? Icon(
+                              Icons.favorite,
+                              size: 25,
+                              color: Colors.red[400],
+                            )
+                            : Icon(
+                              Icons.favorite_border,
+                              size: 25,
+                              color: Colors.red[400],
+                            ),
                   ),
                 ),
 
                 // Cart Button
-                Positioned(
-                  bottom: 8,
-                  right: 8,
-                  child: Container(
-                    height: 36,
-                    width: 36,
-                    decoration: BoxDecoration(
-                      color: Colors.blue[600],
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.15),
-                          spreadRadius: 1,
-                          blurRadius: 3,
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.shopping_cart_outlined,
-                      size: 18,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
               ],
             ),
 
@@ -134,7 +128,7 @@ class ProductItemWidget extends StatelessWidget {
                   Container(
                     constraints: const BoxConstraints(maxWidth: 150),
                     child: Text(
-                      product.category,
+                      widget.product.category,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -146,14 +140,14 @@ class ProductItemWidget extends StatelessWidget {
                   ),
 
                   // Rating Stars
-                  if (product.totalRating > 0)
+                  if (widget.product.totalRating > 0)
                     Row(
                       children: [
                         Row(
                           children: List.generate(
                             5,
                             (index) => Icon(
-                              index < product.averageRating.round()
+                              index < widget.product.averageRating.round()
                                   ? Icons.star
                                   : Icons.star_border,
                               color: Colors.amber,
@@ -162,7 +156,7 @@ class ProductItemWidget extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          "(${product.totalRating})",
+                          "(${widget.product.totalRating})",
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey[600],
@@ -184,7 +178,7 @@ class ProductItemWidget extends StatelessWidget {
                   Container(
                     constraints: const BoxConstraints(maxWidth: 150),
                     child: Text(
-                      product.productName,
+                      widget.product.productName,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -200,7 +194,7 @@ class ProductItemWidget extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        '\$${product.productPrice.toStringAsFixed(2)}',
+                        '\$${widget.product.productPrice.toStringAsFixed(2)}',
                         style: TextStyle(
                           color: Colors.red[700],
                           fontSize: 16,

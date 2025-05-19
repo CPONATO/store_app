@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:shop_app/controllers/product_review_controller.dart';
 import 'package:shop_app/models/order.dart';
+import 'package:shop_app/models/product.dart';
+import 'package:shop_app/services/manage_http_response.dart';
 
 class OrderDetailScreen extends StatefulWidget {
   final Order order;
@@ -23,8 +25,6 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print("Order detail - Product ID: ${widget.order.productId}");
-
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
@@ -45,9 +45,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.share_outlined, color: Colors.white),
-            onPressed: () {
-              // Share functionality
-            },
+            onPressed: () {},
           ),
         ],
         bottom: PreferredSize(
@@ -511,6 +509,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   }
 
   Widget _buildBottomBar(BuildContext context, Order order) {
+    final Product product;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -580,20 +579,18 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                                     onPressed: () {
                                       final review = _reviewController.text;
 
-                                      // Thêm log để kiểm tra
-                                      print(
-                                        "Reviewing product with ID: ${order.productId}",
-                                      );
-
                                       _productReviewController.uploadreview(
                                         buyerId: order.buyerId,
                                         email: order.email,
-                                        productId: order.productId,
-                                        rating: rating,
                                         fullName: order.fullName,
+                                        productId:
+                                            order
+                                                .productId, // Sử dụng productId thay vì order.id
+                                        rating: rating,
                                         review: review,
                                         context: context,
                                       );
+                                      showSnackBar(context, 'Review uploaded');
                                       Navigator.pop(context);
                                     },
                                     child: Text('Submit'),

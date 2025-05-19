@@ -15,7 +15,7 @@ class CheckoutScreen extends ConsumerStatefulWidget {
 }
 
 class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
-  String selectedPaymentMethod = 'stripe';
+  String selectedPaymentMethod = 'Cash On Delivery';
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +24,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
 
     // Kiểm tra chi tiết từng sản phẩm trong giỏ hàng
     cartData.forEach((key, value) {
-      print("Product ID: $key, Product Name: ${value.productName}");
+      print(
+        "Product ID: $key, Product Name: ${value.productName}, ProductID trong value: ${value.productId}",
+      );
     });
     final totalAmount = ref.read(cartProvider.notifier).calculateTotalAmount();
     return Scaffold(
@@ -556,6 +558,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   Widget _buildBottomCheckoutBar(double totalAmount) {
     final _cartProvider = ref.read(cartProvider.notifier);
     final OrderController _orderController = OrderController();
+
     final user = ref.watch(userProvider);
 
     final finalTotal = totalAmount + 5.0 + (totalAmount * 0.05);
@@ -622,18 +625,30 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                       : ElevatedButton(
                         onPressed: () async {
                           if (selectedPaymentMethod == 'stripe') {
+                            // Xử lý thanh toán Stripe
                           } else {
+                            // In ra toàn bộ thông tin giỏ hàng trước khi tạo đơn hàng
+                            print(
+                              "Checking cart items before creating orders:",
+                            );
+                            _cartProvider.getCartItems.forEach((key, item) {
+                              print(
+                                "Key: $key, Product ID: ${item.productId}, Product Name: ${item.productName}",
+                              );
+                            });
+
                             await Future.forEach(
                               _cartProvider.getCartItems.entries,
-                              (entries) {
-                                var item = entries.value;
+                              (entry) async {
+                                var key = entry.key;
+                                var item = entry.value;
 
                                 // Thêm log để kiểm tra
                                 print(
-                                  "Creating order with product ID: ${item.productId}",
+                                  "Creating order for product with key: $key, product ID: ${item.productId}",
                                 );
 
-                                _orderController.uploadOrders(
+                                await _orderController.uploadOrders(
                                   id: '',
                                   fullName: ref.read(userProvider)!.fullName,
                                   email: ref.read(userProvider)!.email,
@@ -647,21 +662,21 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                                   image: item.image[0],
                                   buyerId: ref.read(userProvider)!.id,
                                   vendorId: item.vendorId,
-                                  productId: item.productId,
                                   processing: true,
                                   delivered: false,
+                                  productId: item.productId,
                                   context: context,
                                 );
                               },
                             );
-                            // Navigator.push(
-                            //   context,
-                            //   MaterialPageRoute(
-                            //     builder: (context) {
-                            //       return MainScreen();
-                            //     },
-                            //   ),
-                            // );
+
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => MainScreen(),
+                              ),
+                            );
+                            _cartProvider.clearCart();
                           }
                         },
                         style: ElevatedButton.styleFrom(

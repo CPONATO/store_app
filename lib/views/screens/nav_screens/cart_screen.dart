@@ -97,12 +97,6 @@ class _CartScreenState extends ConsumerState<CartScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image.asset(
-            'assets/icons/cartb.png', // Assuming you have a cart icon
-            width: 120,
-            height: 120,
-            color: Colors.grey[400],
-          ),
           const SizedBox(height: 20),
           Text(
             'Your Shopping Cart Is Empty',
@@ -415,10 +409,10 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                   ),
                   elevation: isCheckoutEnabled ? 2 : 0,
                 ),
-                child: Row(
+                child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
+                    Text(
                       'Checkout',
                       style: TextStyle(
                         color: Colors.white,
@@ -426,7 +420,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Icon(
                       Icons.arrow_forward_ios,
                       color: Colors.white,
