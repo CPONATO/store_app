@@ -23,6 +23,8 @@ class ProductController {
                 )
                 .toList();
         return products;
+      } else if (response.statusCode == 404) {
+        return [];
       } else {
         throw Exception('Failed To Load Products');
       }
@@ -49,6 +51,8 @@ class ProductController {
                 )
                 .toList();
         return products;
+      } else if (response.statusCode == 404) {
+        return [];
       } else {
         throw Exception('Failed To Load Products');
       }
@@ -72,18 +76,20 @@ class ProductController {
       print(response.body);
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body) as List<dynamic>;
-        List<Product> topRatedProduct =
+        List<Product> product =
             data
                 .map(
                   (product) => Product.fromMap(product as Map<String, dynamic>),
                 )
                 .toList();
-        return topRatedProduct;
+        return product;
+      } else if (response.statusCode == 404) {
+        return [];
       } else {
-        throw Exception('Failed To Load related Products');
+        throw Exception('Failed To Load Products');
       }
     } catch (e) {
-      throw Exception('Error Loading related Products: $e');
+      throw Exception('Error Loading Products: $e');
     }
   }
 
@@ -107,11 +113,101 @@ class ProductController {
                 )
                 .toList();
         return topRatedProduct;
+      } else if (response.statusCode == 404) {
+        return [];
       } else {
         throw Exception('Failed To Load  Products');
       }
     } catch (e) {
       throw Exception('Error Loading  Products: $e');
+    }
+  }
+
+  //load product by subcategory
+
+  Future<List<Product>> loadProductBySubcategory(String subCategory) async {
+    try {
+      http.Response response = await http.get(
+        Uri.parse('$uri/api/product-by-subcategory/$subCategory'),
+        headers: <String, String>{
+          "Content-Type": 'application/json; charset=UTF-8',
+        },
+      );
+      print(response.body);
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body) as List<dynamic>;
+        List<Product> product =
+            data
+                .map(
+                  (product) => Product.fromMap(product as Map<String, dynamic>),
+                )
+                .toList();
+        return product;
+      } else if (response.statusCode == 404) {
+        return [];
+      } else {
+        throw Exception('Failed To Load related Products');
+      }
+    } catch (e) {
+      throw Exception('Error Loading related Products: $e');
+    }
+  }
+
+  //search product by name for description
+
+  Future<List<Product>> searchProduct(String query) async {
+    try {
+      http.Response response = await http.get(
+        Uri.parse('$uri/api/search-products?query=$query'),
+        headers: <String, String>{
+          "Content-Type": 'application/json; charset=UTF-8',
+        },
+      );
+      print(response.body);
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body) as List<dynamic>;
+        List<Product> searchProduct =
+            data
+                .map(
+                  (product) => Product.fromMap(product as Map<String, dynamic>),
+                )
+                .toList();
+        return searchProduct;
+      } else if (response.statusCode == 404) {
+        return [];
+      } else {
+        throw Exception('Failed To Load Products');
+      }
+    } catch (e) {
+      throw Exception('Error Loading Products: $e');
+    }
+  }
+
+  Future<List<Product>> loadProductByVendor(String vendorId) async {
+    try {
+      http.Response response = await http.get(
+        Uri.parse('$uri/api/products/vendor/$vendorId'),
+        headers: <String, String>{
+          "Content-Type": 'application/json; charset=UTF-8',
+        },
+      );
+      print(response.body);
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body) as List<dynamic>;
+        List<Product> products =
+            data
+                .map(
+                  (product) => Product.fromMap(product as Map<String, dynamic>),
+                )
+                .toList();
+        return products;
+      } else if (response.statusCode == 404) {
+        return [];
+      } else {
+        throw Exception('Failed To Load Products');
+      }
+    } catch (e) {
+      throw Exception('Error Loading Product: $e');
     }
   }
 }

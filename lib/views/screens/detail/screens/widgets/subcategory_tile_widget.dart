@@ -11,13 +11,16 @@ class SubcategoryTileWidget extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Image container with shadow
+          // Image container with shadow - Square shape
           Container(
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              shape: BoxShape.circle,
+              borderRadius: BorderRadius.circular(
+                12,
+              ), // Rounded corners for square
               boxShadow: [
                 BoxShadow(
                   color: Colors.grey.withOpacity(0.2),
@@ -28,19 +31,19 @@ class SubcategoryTileWidget extends StatelessWidget {
               ],
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(40),
+              borderRadius: BorderRadius.circular(12),
               child: Container(
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  shape: BoxShape.circle,
+                  borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: Colors.blue.withOpacity(0.1),
                     width: 3,
                   ),
                 ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(36),
+                  borderRadius: BorderRadius.circular(8),
                   child: Image.network(
                     image,
                     fit: BoxFit.cover,
@@ -60,31 +63,33 @@ class SubcategoryTileWidget extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
 
           // Title with better text styling
-          Container(
-            width: 110,
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () {},
-                borderRadius: BorderRadius.circular(16),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 4,
-                    vertical: 6,
-                  ),
-                  child: Text(
-                    title,
-                    textAlign: TextAlign.center,
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 2,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.blue[800],
-                      height: 1.2,
+          Flexible(
+            child: Container(
+              width: 110,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {},
+                  borderRadius: BorderRadius.circular(16),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 4,
+                    ),
+                    child: Text(
+                      title,
+                      textAlign: TextAlign.center,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 2,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.blue[800],
+                        height: 1.1,
+                      ),
                     ),
                   ),
                 ),

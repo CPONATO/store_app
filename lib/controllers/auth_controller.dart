@@ -1,10 +1,12 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shop_app/global_variables.dart';
 import 'package:shop_app/models/user.dart';
+import 'package:shop_app/provider/delivered_order_count_provider.dart';
 import 'package:shop_app/provider/user_provider.dart';
 import 'package:shop_app/services/manage_http_response.dart';
 import 'package:shop_app/views/screens/authentication_screens/login_screen.dart';
@@ -58,7 +60,6 @@ class AuthController {
     } catch (e) {}
   }
 
-  // Trong auth_controller.dart, phương thức signInUsers
   Future<void> signInUsers({
     required BuildContext context,
     required String email,
@@ -84,6 +85,11 @@ class AuthController {
 
           // Đặt lại trạng thái người dùng trong provider
           providerContainer.read(userProvider.notifier).signOut();
+
+          // **THÊM DÒNG NÀY:** Reset delivered order count cho user mới
+          providerContainer
+              .read(deliveredOrderCountProvider.notifier)
+              .resetCount();
 
           // Lấy dữ liệu người dùng mới
           final userData = jsonDecode(response.body)['user'];
@@ -123,6 +129,7 @@ class AuthController {
 
       // Xóa dữ liệu từ provider - Đảm bảo phải gọi trước khi điều hướng
       providerContainer.read(userProvider.notifier).signOut();
+      providerContainer.read(deliveredOrderCountProvider.notifier).resetCount();
 
       // Kiểm tra xóa thành công
       print("Token sau khi đăng xuất: ${preferences.getString('auth_token')}");
@@ -190,6 +197,49 @@ class AuthController {
     } catch (e) {
       print("Lỗi cập nhật địa chỉ: $e");
       showSnackBar(context, 'Lỗi cập nhật địa chỉ');
+    }
+  }
+
+  Future<void> deleteAccoumt({
+    required BuildContext context,
+    required String id,
+    required WidgetRef ref,
+  }) async {
+    try {
+      SharedPreferences preferences = await SharedPreferences.getInstance();
+      String? token = preferences.getString('auth_token');
+      if (token == null) {
+        showSnackBar(context, "You need to login to perform this action");
+        return;
+      }
+
+      http.Response response = await http.delete(
+        Uri.parse('$uri/api/user/delete-account/$id'),
+        headers: <String, String>{
+          "Content-Type": 'application/json; charset=UTF-8',
+          'x-auth-token': token,
+        },
+      );
+      manageHttpResponse(
+        response: response,
+        context: context,
+        onSuccess: () async {
+          await preferences.remove(('auth_token'));
+
+          await preferences.remove('user');
+
+          ref.read(userProvider.notifier).signOut();
+
+          showSnackBar(context, 'Account deleted');
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginScreen()),
+            (route) => false,
+          );
+        },
+      );
+    } catch (e) {
+      showSnackBar(context, 'Error deleting account: $e');
     }
   }
 }

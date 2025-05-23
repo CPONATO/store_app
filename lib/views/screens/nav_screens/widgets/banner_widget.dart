@@ -117,74 +117,74 @@ class _BannerWidgetState extends ConsumerState<BannerWidget> {
                               },
                             ),
 
-                            // Gradient overlay
-                            Container(
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: [
-                                    Colors.black.withOpacity(0.0),
-                                    Colors.black.withOpacity(0.4),
-                                  ],
-                                ),
-                              ),
-                            ),
+                            // // Gradient overlay
+                            // Container(
+                            //   decoration: BoxDecoration(
+                            //     gradient: LinearGradient(
+                            //       begin: Alignment.topCenter,
+                            //       end: Alignment.bottomCenter,
+                            //       colors: [
+                            //         Colors.black.withOpacity(0.0),
+                            //         Colors.black.withOpacity(0.4),
+                            //       ],
+                            //     ),
+                            //   ),
+                            // ),
 
                             // Content overlay
-                            Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Text(
-                                    'Special Offer',
-                                    style: TextStyle(
-                                      color: Colors.white.withOpacity(0.9),
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 1.2,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  const Text(
-                                    'Discover Amazing Products',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      shadows: [
-                                        Shadow(
-                                          blurRadius: 3.0,
-                                          color: Colors.black54,
-                                          offset: Offset(1.0, 1.0),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 6,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.blue[700],
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                    child: const Text(
-                                      'Shop Now',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                            // Padding(
+                            //   padding: const EdgeInsets.all(16.0),
+                            //   child: Column(
+                            //     crossAxisAlignment: CrossAxisAlignment.start,
+                            //     mainAxisAlignment: MainAxisAlignment.end,
+                            //     children: [
+                            //       Text(
+                            //         'Special Offer',
+                            //         style: TextStyle(
+                            //           color: Colors.white.withOpacity(0.9),
+                            //           fontSize: 12,
+                            //           fontWeight: FontWeight.bold,
+                            //           letterSpacing: 1.2,
+                            //         ),
+                            //       ),
+                            //       const SizedBox(height: 4),
+                            //       const Text(
+                            //         'Discover Amazing Products',
+                            //         style: TextStyle(
+                            //           color: Colors.white,
+                            //           fontSize: 18,
+                            //           fontWeight: FontWeight.bold,
+                            //           shadows: [
+                            //             Shadow(
+                            //               blurRadius: 3.0,
+                            //               color: Colors.black54,
+                            //               offset: Offset(1.0, 1.0),
+                            //             ),
+                            //           ],
+                            //         ),
+                            //       ),
+                            //       const SizedBox(height: 8),
+                            //       Container(
+                            //         padding: const EdgeInsets.symmetric(
+                            //           horizontal: 12,
+                            //           vertical: 6,
+                            //         ),
+                            //         decoration: BoxDecoration(
+                            //           color: Colors.blue[700],
+                            //           borderRadius: BorderRadius.circular(16),
+                            //         ),
+                            //         child: const Text(
+                            //           'Shop Now',
+                            //           style: TextStyle(
+                            //             color: Colors.white,
+                            //             fontSize: 12,
+                            //             fontWeight: FontWeight.bold,
+                            //           ),
+                            //         ),
+                            //       ),
+                            //     ],
+                            //   ),
+                            // ),
                           ],
                         );
                       },

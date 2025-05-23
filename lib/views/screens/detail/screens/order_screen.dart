@@ -6,6 +6,7 @@ import 'package:shop_app/models/order.dart';
 import 'package:shop_app/provider/order_provider.dart';
 import 'package:shop_app/provider/user_provider.dart';
 import 'package:shop_app/views/screens/detail/screens/order_detail_screen.dart';
+import 'package:shop_app/views/screens/main_screen.dart';
 
 class OrderScreen extends ConsumerStatefulWidget {
   const OrderScreen({super.key});
@@ -39,25 +40,17 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
         final orders = await orderController.loadOrders(buyerId: user.id);
         ref.read(orderProvider.notifier).setOrders(orders);
 
-        if (orders.isEmpty) {
-          print("No orders found for this user");
-        }
+        // Không cần phải đưa ra thông báo lỗi nếu mảng orders rỗng
+        // Đây là trường hợp bình thường và nên hiển thị màn hình "No orders"
       } catch (e) {
         print('Error fetching orders: $e');
 
-        // Important: Interpret the error as "no orders" rather than a critical error
-        if (e.toString().contains("No orders") ||
-            e.toString().contains("404") ||
-            e.toString().contains("empty")) {
-          // This is likely just "no orders available" - set empty list
-          ref.read(orderProvider.notifier).setOrders([]);
-        } else {
-          // This is a real error (like network failure, server error)
-          setState(() {
-            _isCriticalError = true;
-            _errorMessage = 'Could not load orders. Please try again.';
-          });
-        }
+        // Chỉ đặt _isCriticalError = true nếu đây là lỗi nghiêm trọng khác
+        // không phải là trường hợp "không có đơn hàng"
+        setState(() {
+          _isCriticalError = true;
+          _errorMessage = 'Could not load orders. Please try again.';
+        });
       } finally {
         setState(() {
           _isLoading = false;
@@ -221,7 +214,14 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
           ElevatedButton.icon(
             onPressed: () {
               // Navigate to shop/home screen
-              Navigator.of(context).pop();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return MainScreen();
+                  },
+                ),
+              );
             },
             icon: const Icon(Icons.shopping_bag_outlined),
             label: const Text('Start Shopping'),

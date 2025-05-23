@@ -1,9 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:shop_app/controllers/order_controller.dart';
+import 'package:shop_app/models/order.dart';
 import 'package:shop_app/provider/cart_provider.dart';
 import 'package:shop_app/provider/user_provider.dart';
+import 'package:shop_app/services/manage_http_response.dart';
 import 'package:shop_app/views/screens/detail/screens/shipping_address_screen.dart';
 import 'package:shop_app/views/screens/main_screen.dart';
 
@@ -16,6 +19,77 @@ class CheckoutScreen extends ConsumerStatefulWidget {
 
 class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   String selectedPaymentMethod = 'Cash On Delivery';
+  // Future<void> handleStripePayment(BuildContext context) async {
+  //   final OrderController _orderController = OrderController();
+  //   final cartData = ref.read(cartProvider);
+  //   final user = ref.read(userProvider);
+  //   bool isloading = false;
+
+  //   if (cartData.isEmpty) {
+  //     showSnackBar(context, "Your cart is empty");
+  //     return;
+  //   }
+
+  //   if (user == null) {
+  //     showSnackBar(context, "User information is missing");
+  //     return;
+  //   }
+
+  //   try {
+  //     setState(() {
+  //       isloading = true;
+  //     });
+  //     //calculate the total amount for all item in cart
+  //     final totalAmount = cartData.values.fold(
+  //       0.0,
+  //       (sum, item) => sum + (item.quantity * item.productPrice),
+  //     );
+  //     //check if the total amount is a valid amount
+  //     if (totalAmount <= 0) {
+  //       showSnackBar(context, "Total amount must be greater than 0");
+  //       return;
+  //     }
+  //     final paymentItent = await _orderController.createPaymentItent(
+  //       amount: (totalAmount * 100).toInt(),
+  //       currency: 'usd',
+  //     );
+
+  //     await Stripe.instance.initPaymentSheet(
+  //       paymentSheetParameters: SetupPaymentSheetParameters(
+  //         paymentIntentClientSecret: paymentItent['client_secret'],
+  //         merchantDisplayName: 'K Store',
+  //       ),
+  //     );
+
+  //     await Stripe.instance.presentPaymentSheet();
+  //     for (final entry in cartData.entries) {
+  //       final item = entry.value;
+  //       await _orderController.uploadOrders(
+  //         id: '',
+  //         fullName: ref.read(userProvider)!.fullName,
+  //         email: ref.read(userProvider)!.email,
+  //         state: ref.read(userProvider)!.state,
+  //         city: ref.read(userProvider)!.city,
+  //         locality: ref.read(userProvider)!.locality,
+  //         productName: item.productName,
+  //         productPrice: item.productPrice,
+  //         quantity: item.quantity,
+  //         category: item.category,
+  //         image: item.image[0],
+  //         buyerId: ref.read(userProvider)!.id,
+  //         vendorId: item.vendorId,
+  //         processing: true,
+  //         delivered: false,
+  //         productId: item.productId,
+  //         context: context,
+  //       );
+  //     }
+  //   } catch (e) {
+  //     showSnackBar(context, 'Payment failed: $e');
+  //   } finally {
+  //     isloading = false;
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -382,7 +456,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             title: 'Credit/Debit Card (Stripe)',
             icon: Icons.credit_card,
             value: 'stripe',
-            subtitle: 'Pay securely with your card',
+            subtitle: 'Pay securely with your card (in development)',
           ),
           Divider(color: Colors.grey[200]),
           _buildPaymentOption(

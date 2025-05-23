@@ -5,6 +5,7 @@ import 'package:shop_app/controllers/subcategory_controller.dart';
 import 'package:shop_app/models/category.dart';
 import 'package:shop_app/models/product.dart';
 import 'package:shop_app/models/subcategory.dart';
+import 'package:shop_app/views/screens/detail/screens/subcategory_product_screen.dart';
 import 'package:shop_app/views/screens/detail/screens/widgets/inner_banner_widget.dart';
 import 'package:shop_app/views/screens/detail/screens/widgets/inner_header_widget.dart';
 import 'package:shop_app/views/screens/nav_screens/widgets/product_item_widget.dart';
@@ -137,12 +138,28 @@ class _InnerCategoryContentWidgetState
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
             child: Row(
               children:
-                  subcategories.map((subcategory) {
-                    return SubcategoryTileWidget(
-                      image: subcategory.image,
-                      title: subcategory.subCategoryName,
-                    );
-                  }).toList(),
+                  subcategories
+                      .map(
+                        (subcategory) => GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return SubcategoryProductScreen(
+                                    subcategory: subcategory,
+                                  );
+                                },
+                              ),
+                            );
+                          },
+                          child: SubcategoryTileWidget(
+                            image: subcategory.image,
+                            title: subcategory.subCategoryName,
+                          ),
+                        ),
+                      )
+                      .toList(),
             ),
           );
         }

@@ -2,13 +2,13 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:shop_app/global_variables.dart';
-import 'package:shop_app/models/banner.dart';
+import 'package:shop_app/models/vendor_model.dart';
 
-class BannerController {
-  Future<List<BannerModel>> loadBanners() async {
+class VendorController {
+  Future<List<Vendor>> loadVendors() async {
     try {
       http.Response response = await http.get(
-        Uri.parse('$uri/api/banner'),
+        Uri.parse('$uri/api/vendors'),
         headers: <String, String>{
           "Content-Type": 'application/json; charset=UTF-8',
         },
@@ -16,17 +16,17 @@ class BannerController {
       print(response.body);
       if (response.statusCode == 200) {
         List<dynamic> data = jsonDecode(response.body);
-        List<BannerModel> banners =
-            data.map((banner) => BannerModel.fromJson(banner)).toList();
+        List<Vendor> vendors =
+            data.map((vendor) => Vendor.fromJson(vendor)).toList();
 
-        return banners;
+        return vendors;
       } else if (response.statusCode == 404) {
         return [];
       } else {
-        throw Exception('Failed to load banner');
+        throw Exception('Failed to load vendor');
       }
     } catch (e) {
-      throw Exception('Error loading Banner $e');
+      throw Exception('Error loading vendor $e');
     }
   }
 }

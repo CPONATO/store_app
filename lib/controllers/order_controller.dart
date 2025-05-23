@@ -86,11 +86,26 @@ class OrderController {
         List<Order> orders =
             data.map((order) => Order.fromJson(order)).toList();
         return orders;
+      } else if (response.statusCode == 404) {
+        // Đây là trường hợp bình thường khi không có đơn hàng
+        return []; // Trả về mảng rỗng
       } else {
-        throw Exception('Failed to load Orders');
+        throw Exception('Failed to load Orders: Status ${response.statusCode}');
       }
     } catch (e) {
-      throw Exception('Error Loading Orders');
+      throw Exception('Error Loading Orders: $e');
+    }
+  }
+
+  // Thêm function mới để đếm số đơn hàng đã giao
+  Future<int> getDeliveredOrderCount({required String buyerId}) async {
+    try {
+      List<Order> orders = await loadOrders(buyerId: buyerId);
+      int deliveredCount = orders.where((order) => order.delivered).length;
+      return deliveredCount;
+    } catch (e) {
+      // Nếu có lỗi, trả về 0
+      return 0;
     }
   }
 
@@ -116,4 +131,30 @@ class OrderController {
       showSnackBar(context, e.toString());
     }
   }
+
+  // Future<Map<String, dynamic>> createPaymentItent({
+  //   required int amount,
+  //   required String currency,
+  // }) async {
+  //   try {
+  //     SharedPreferences preferences = await SharedPreferences.getInstance();
+  //     String? token = preferences.getString("auth_token");
+
+  //     http.Response response = await http.post(
+  //       Uri.parse('$uri/api/payment-intent'),
+  //       headers: <String, String>{
+  //         "Content-Type": 'application/json; charset=UTF-8',
+  //         'x-auth-token': token!,
+  //       },
+  //       body: jsonEncode({"amount": amount, "currency": currency}),
+  //     );
+  //     if (response.statusCode == 200) {
+  //       return jsonDecode(response.body);
+  //     } else {
+  //       throw Exception("Failed to create payment intent${response.body}");
+  //     }
+  //   } catch (e) {
+  //     throw Exception('Error creating payment intent: $e');
+  //   }
+  // }
 }

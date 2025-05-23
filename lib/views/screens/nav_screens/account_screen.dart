@@ -2,17 +2,52 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shop_app/controllers/auth_controller.dart';
+import 'package:shop_app/provider/cart_provider.dart';
+import 'package:shop_app/provider/favorite_provider.dart';
+import 'package:shop_app/provider/order_provider.dart';
 import 'package:shop_app/provider/user_provider.dart';
+import 'package:shop_app/provider/delivered_order_count_provider.dart';
 import 'package:shop_app/views/screens/detail/screens/order_screen.dart';
 import 'package:shop_app/views/screens/detail/screens/shipping_address_screen.dart';
 
-class AccountScreen extends ConsumerWidget {
+class AccountScreen extends ConsumerStatefulWidget {
   AccountScreen({super.key});
-  final AuthController _authController = AuthController();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AccountScreen> createState() => _AccountScreenState();
+}
+
+class _AccountScreenState extends ConsumerState<AccountScreen> {
+  final AuthController _authController = AuthController();
+  bool _hasInitialized = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _initializeDeliveredOrderCount();
+  }
+
+  void _initializeDeliveredOrderCount() {
+    final user = ref.read(userProvider);
+    if (user != null && !_hasInitialized) {
+      _hasInitialized = true;
+      // Fetch delivered order count khi màn hình được load
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref
+            .read(deliveredOrderCountProvider.notifier)
+            .fetchDeliveredOrderCount(user.id, context);
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final user = ref.watch(userProvider);
+    final cartItems = ref.watch(cartProvider);
+    final favoriteItems = ref.watch(favoriteProvider);
+    final deliveredOrderCount = ref.watch(
+      deliveredOrderCountProvider,
+    ); // Watch provider của bạn
 
     if (user == null) {
       return const Center(child: CircularProgressIndicator());
@@ -38,6 +73,16 @@ class AccountScreen extends ConsumerWidget {
               // Navigate to settings if needed
             },
           ),
+          // Thêm refresh button
+          IconButton(
+            icon: const Icon(Icons.refresh, color: Colors.white),
+            onPressed: () {
+              // Refresh delivered order count
+              ref
+                  .read(deliveredOrderCountProvider.notifier)
+                  .fetchDeliveredOrderCount(user.id, context);
+            },
+          ),
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(4.0),
@@ -59,6 +104,16 @@ class AccountScreen extends ConsumerWidget {
           children: [
             _buildProfileHeader(context, user),
             const SizedBox(height: 16),
+
+            // Sử dụng deliveredOrderCount từ provider
+            _buildStatisticsSection(
+              context,
+              cartCount: cartItems.length,
+              favoriteCount: favoriteItems.length,
+              orderCount: deliveredOrderCount, // Sử dụng provider value
+            ),
+            const SizedBox(height: 16),
+
             _buildSectionTitle('Account Information'),
             _buildInfoCard(context, user),
             const SizedBox(height: 16),
@@ -67,8 +122,15 @@ class AccountScreen extends ConsumerWidget {
             const SizedBox(height: 16),
             _buildSectionTitle('Security'),
             _buildSecurityCard(context),
+            const SizedBox(height: 16),
+
+            _buildSectionTitle('Support'),
+            _buildContactSupportCard(context),
             const SizedBox(height: 24),
+
             _buildSignOutButton(context),
+            const SizedBox(height: 12),
+            _buildDeleteAccountButton(context),
             const SizedBox(height: 40),
           ],
         ),
@@ -158,6 +220,114 @@ class AccountScreen extends ConsumerWidget {
     );
   }
 
+  Widget _buildStatisticsSection(
+    BuildContext context, {
+    required int cartCount,
+    required int favoriteCount,
+    required int orderCount,
+  }) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 5,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          // Giỏ hàng
+          Expanded(
+            child: _buildStatItem(
+              icon: CupertinoIcons.cart,
+              color: Colors.blue,
+              title: 'Cart',
+              count: cartCount,
+              onTap: () {
+                // Navigate to cart if needed
+              },
+            ),
+          ),
+          // Đường kẻ phân cách
+          Container(height: 50, width: 1, color: Colors.grey[200]),
+          // Yêu thích
+          Expanded(
+            child: _buildStatItem(
+              icon: CupertinoIcons.heart,
+              color: Colors.red,
+              title: 'Favorites',
+              count: favoriteCount,
+              onTap: () {
+                // Navigate to favorites if needed
+              },
+            ),
+          ),
+          // Đường kẻ phân cách
+          Container(height: 50, width: 1, color: Colors.grey[200]),
+          // Đơn hàng đã giao
+          Expanded(
+            child: _buildStatItem(
+              icon: CupertinoIcons.cube_box,
+              color: Colors.green,
+              title: 'Delivered',
+              count: orderCount,
+              onTap: () {
+                // Refresh delivered order count khi tap
+                final user = ref.read(userProvider);
+                if (user != null) {
+                  ref
+                      .read(deliveredOrderCountProvider.notifier)
+                      .fetchDeliveredOrderCount(user.id, context);
+                }
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatItem({
+    required IconData icon,
+    required Color color,
+    required String title,
+    required int count,
+    VoidCallback? onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: Column(
+          children: [
+            Icon(icon, color: Color(0xFF2196F3), size: 24),
+            const SizedBox(height: 8),
+            Text(
+              count.toString(),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF1565C0),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              title,
+              style: TextStyle(fontSize: 12, color: Color(0xFF757575)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
@@ -218,7 +388,15 @@ class AccountScreen extends ConsumerWidget {
                     return OrderScreen();
                   },
                 ),
-              );
+              ).then((_) {
+                // Refresh delivered order count khi quay lại từ OrderScreen
+                final user = ref.read(userProvider);
+                if (user != null) {
+                  ref
+                      .read(deliveredOrderCountProvider.notifier)
+                      .fetchDeliveredOrderCount(user.id, context);
+                }
+              });
             },
           ),
         ],
@@ -350,6 +528,108 @@ class AccountScreen extends ConsumerWidget {
     );
   }
 
+  Widget _buildContactSupportCard(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 5,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          _buildListTile(
+            title: 'Contact Support',
+            subtitle: '24/7 Customer Service',
+            icon: CupertinoIcons.chat_bubble_text,
+            iconColor: Colors.teal[700]!,
+            onTap: () {
+              showDialog(
+                context: context,
+                builder:
+                    (context) => AlertDialog(
+                      title: Text('Contact Support'),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildContactItem(
+                            icon: Icons.email,
+                            title: 'Email',
+                            details: 'RielEmail@gmail.com',
+                          ),
+                          SizedBox(height: 16),
+                          _buildContactItem(
+                            icon: Icons.phone,
+                            title: 'Phone',
+                            details: '+84 888-123-567',
+                          ),
+                          SizedBox(height: 16),
+                          _buildContactItem(
+                            icon: Icons.schedule,
+                            title: 'Working Hours',
+                            details: 'Monday to Sunday, 24/7',
+                          ),
+                        ],
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: Text('Close'),
+                        ),
+                      ],
+                    ),
+              );
+            },
+          ),
+          const Divider(height: 1),
+          _buildListTile(
+            title: 'FAQ',
+            subtitle: 'Frequently Asked Questions',
+            icon: CupertinoIcons.question_circle,
+            iconColor: Colors.amber[700]!,
+            onTap: () {
+              // Điều hướng đến màn hình FAQ
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContactItem({
+    required IconData icon,
+    required String title,
+    required String details,
+  }) {
+    return Row(
+      children: [
+        Icon(icon, color: Colors.blue[700], size: 24),
+        SizedBox(width: 16),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+            ),
+            Text(
+              details,
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
   Widget _buildListTile({
     required String title,
     required String subtitle,
@@ -391,7 +671,6 @@ class AccountScreen extends ConsumerWidget {
       width: double.infinity,
       child: ElevatedButton.icon(
         onPressed: () {
-          // Show confirmation dialog
           showDialog(
             context: context,
             builder:
@@ -407,7 +686,8 @@ class AccountScreen extends ConsumerWidget {
                     ),
                     TextButton(
                       onPressed: () {
-                        Navigator.pop(context); // Close dialog
+                        Navigator.pop(context);
+
                         _authController.signOutUSer(context: context);
                       },
                       child: const Text('Sign Out'),
@@ -422,7 +702,62 @@ class AccountScreen extends ConsumerWidget {
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.red[600],
+          backgroundColor: const Color.fromARGB(255, 255, 124, 63),
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDeleteAccountButton(BuildContext context) {
+    final user = ref.read(userProvider);
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder:
+                (context) => AlertDialog(
+                  title: const Text('Delete Account'),
+                  content: const Text(
+                    'Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed.',
+                    style: TextStyle(color: Colors.black87),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () async {
+                        _authController.deleteAccoumt(
+                          context: context,
+                          id: user!.id,
+                          ref: ref,
+                        );
+                      },
+                      child: const Text(
+                        'Delete',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  ],
+                ),
+          );
+        },
+        icon: const Icon(Icons.delete_forever),
+        label: const Text(
+          'Delete Account',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.red[800],
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(

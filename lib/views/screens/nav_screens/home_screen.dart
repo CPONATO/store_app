@@ -12,13 +12,18 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(
+          MediaQuery.of(context).size.height * 0.093,
+        ),
+        child: const HeaderWidget(),
+      ),
       backgroundColor: Colors.grey[100], // Consistent background color
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const HeaderWidget(),
               // Custom welcome section
               _buildWelcomeSection(),
               const BannerWidget(),

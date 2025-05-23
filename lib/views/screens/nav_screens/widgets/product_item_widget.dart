@@ -46,88 +46,90 @@ class _ProductItemWidgetState extends ConsumerState<ProductItemWidget> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Image Container
-            Stack(
-              children: [
-                // Product Image
-                ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(12),
-                    topRight: Radius.circular(12),
-                  ),
-                  child: Container(
-                    height: 170,
-                    width: double.infinity,
-                    color: const Color(0xFFF5F6F8),
-                    child: Image.network(
-                      widget.product.images[0],
-                      height: 170,
-                      width: 170,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          color: Colors.grey[200],
-                          child: const Center(
-                            child: Icon(
-                              Icons.image_not_supported_outlined,
-                              color: Colors.grey,
-                              size: 40,
+            Expanded(
+              flex: 2,
+              child: Stack(
+                children: [
+                  // Product Image
+                  ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(12),
+                      topRight: Radius.circular(12),
+                    ),
+                    child: Container(
+                      height: double.infinity,
+                      width: double.infinity,
+                      color: const Color(0xFFF5F6F8),
+                      child: Image.network(
+                        widget.product.images[0],
+                        height: double.infinity,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            color: Colors.grey[200],
+                            child: const Center(
+                              child: Icon(
+                                Icons.image_not_supported_outlined,
+                                color: Colors.grey,
+                                size: 40,
+                              ),
                             ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+
+                  // Wishlist Button
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Container(
+                      height: 32,
+                      width: 32,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            spreadRadius: 1,
+                            blurRadius: 2,
                           ),
-                        );
-                      },
+                        ],
+                      ),
+                      child:
+                          favoriteProviderData.getFavoriteItems.containsKey(
+                                widget.product.id,
+                              )
+                              ? Icon(
+                                Icons.favorite,
+                                size: 25,
+                                color: Colors.red[400],
+                              )
+                              : Icon(
+                                Icons.favorite_border,
+                                size: 25,
+                                color: Colors.red[400],
+                              ),
                     ),
                   ),
-                ),
-
-                // Wishlist Button
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: Container(
-                    height: 32,
-                    width: 32,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          spreadRadius: 1,
-                          blurRadius: 2,
-                        ),
-                      ],
-                    ),
-                    child:
-                        favoriteProviderData.getFavoriteItems.containsKey(
-                              widget.product.id,
-                            )
-                            ? Icon(
-                              Icons.favorite,
-                              size: 25,
-                              color: Colors.red[400],
-                            )
-                            : Icon(
-                              Icons.favorite_border,
-                              size: 25,
-                              color: Colors.red[400],
-                            ),
-                  ),
-                ),
-
-                // Cart Button
-              ],
+                ],
+              ),
             ),
 
             // Product Information
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Category
-                  Container(
-                    constraints: const BoxConstraints(maxWidth: 150),
-                    child: Text(
+            Expanded(
+              flex: 1,
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Category
+                    Text(
                       widget.product.category,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -137,97 +139,96 @@ class _ProductItemWidgetState extends ConsumerState<ProductItemWidget> {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                  ),
 
-                  // Rating Stars
-                  if (widget.product.totalRating > 0)
+                    // Rating Stars
+                    if (widget.product.totalRating > 0)
+                      Row(
+                        children: [
+                          Row(
+                            children: List.generate(
+                              5,
+                              (index) => Icon(
+                                index < widget.product.averageRating.round()
+                                    ? Icons.star
+                                    : Icons.star_border,
+                                color: Colors.amber,
+                                size: 14,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            "(${widget.product.totalRating})",
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      )
+                    else
+                      Text(
+                        "No ratings yet",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+
+                    // Product Name
+                    Expanded(
+                      child: Text(
+                        widget.product.productName,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          height: 1.2,
+                        ),
+                      ),
+                    ),
+
+                    // Price and Stock
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: List.generate(
-                            5,
-                            (index) => Icon(
-                              index < widget.product.averageRating.round()
-                                  ? Icons.star
-                                  : Icons.star_border,
-                              color: Colors.amber,
-                              size: 14,
+                        Text(
+                          '\$${widget.product.productPrice.toStringAsFixed(2)}',
+                          style: TextStyle(
+                            color: Colors.red[700],
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+
+                        // In Stock Tag
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.green[50],
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(
+                              color: Colors.green[300]!,
+                              width: 0.5,
+                            ),
+                          ),
+                          child: Text(
+                            'In Stock',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.green[700],
                             ),
                           ),
                         ),
-                        Text(
-                          "(${widget.product.totalRating})",
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[600],
-                          ),
-                        ),
                       ],
-                    )
-                  else
-                    Text(
-                      "No ratings yet",
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                        fontStyle: FontStyle.italic,
-                      ),
                     ),
-
-                  // Product Name
-                  Container(
-                    constraints: const BoxConstraints(maxWidth: 150),
-                    child: Text(
-                      widget.product.productName,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        height: 1.2,
-                      ),
-                    ),
-                  ),
-
-                  // Price and Stock
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '\$${widget.product.productPrice.toStringAsFixed(2)}',
-                        style: TextStyle(
-                          color: Colors.red[700],
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-
-                      // In Stock Tag
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.green[50],
-                          borderRadius: BorderRadius.circular(4),
-                          border: Border.all(
-                            color: Colors.green[300]!,
-                            width: 0.5,
-                          ),
-                        ),
-                        child: Text(
-                          'In Stock',
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.green[700],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ],
