@@ -251,7 +251,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          "\$${cartItem.productPrice.toStringAsFixed(2)}",
+                          "${cartItem.productPrice.toStringAsFixed(0)} VND",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 18,
@@ -377,7 +377,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "\$${totalAmount.toStringAsFixed(2)}",
+                  "${totalAmount.toStringAsFixed(0)} VND",
                   style: TextStyle(
                     color: Colors.blue[800],
                     fontSize: 20,

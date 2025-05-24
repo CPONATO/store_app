@@ -286,7 +286,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                           ),
                         ),
                         Text(
-                          '\$${order.productPrice.toStringAsFixed(2)} / item',
+                          '${order.productPrice.toStringAsFixed(0)} VND / item',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 14,
@@ -309,7 +309,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             children: [
               const Text('Subtotal', style: TextStyle(fontSize: 14)),
               Text(
-                '\$${(order.productPrice * order.quantity).toStringAsFixed(2)}',
+                '${(order.productPrice * order.quantity).toStringAsFixed(2)} VND',
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -337,7 +337,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             children: [
               const Text('Tax', style: TextStyle(fontSize: 14)),
               Text(
-                '\$${(order.productPrice * order.quantity * 0.05).toStringAsFixed(2)}',
+                '${(order.productPrice * order.quantity * 0.05).toStringAsFixed(0)} VND',
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -356,7 +356,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               Text(
-                '\$${(order.productPrice * order.quantity + 5.0 + (order.productPrice * order.quantity * 0.05)).toStringAsFixed(2)}',
+                '${(order.productPrice * order.quantity + 5.0 + (order.productPrice * order.quantity * 0.05)).toStringAsFixed(0)} VND',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,

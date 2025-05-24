@@ -14,7 +14,7 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   int _pageIndex = 0;
 
   final List<Widget> _pages = [
@@ -27,16 +27,51 @@ class _MainScreenState extends State<MainScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    // Reset navigation state when app becomes active
+    if (state == AppLifecycleState.resumed) {
+      setState(() {
+        // Refresh the current state
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _pages[_pageIndex],
-      bottomNavigationBar: CustomNavigationBar(
-        currentIndex: _pageIndex,
-        onTap: (index) {
+    return WillPopScope(
+      onWillPop: () async {
+        // Handle back button to reset to home if needed
+        if (_pageIndex != 0) {
           setState(() {
-            _pageIndex = index;
+            _pageIndex = 0;
           });
-        },
+          return false;
+        }
+        return true;
+      },
+      child: Scaffold(
+        body: IndexedStack(index: _pageIndex, children: _pages),
+        bottomNavigationBar: CustomNavigationBar(
+          currentIndex: _pageIndex,
+          onTap: (index) {
+            setState(() {
+              _pageIndex = index;
+            });
+          },
+        ),
       ),
     );
   }

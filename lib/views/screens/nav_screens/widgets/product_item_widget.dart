@@ -119,116 +119,122 @@ class _ProductItemWidgetState extends ConsumerState<ProductItemWidget> {
               ),
             ),
 
-            // Product Information
-            Expanded(
-              flex: 1,
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Category
-                    Text(
-                      widget.product.category,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.blue[600],
-                        fontWeight: FontWeight.w500,
-                      ),
+            // Product Information - SỬA LẠI PHẦN NÀY
+            Container(
+              height: 110, // CỐ ĐỊNH CHIỀU CAO
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.product.productName,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      height: 1.2,
                     ),
+                  ),
+                  // Category
+                  Text(
+                    widget.product.category,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.blue[600],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
 
-                    // Rating Stars
-                    if (widget.product.totalRating > 0)
-                      Row(
-                        children: [
-                          Row(
-                            children: List.generate(
-                              5,
-                              (index) => Icon(
-                                index < widget.product.averageRating.round()
-                                    ? Icons.star
-                                    : Icons.star_border,
-                                color: Colors.amber,
-                                size: 14,
+                  // Rating Stars - COMPACT và SÁT NHAU
+                  SizedBox(
+                    height: 16,
+                    child:
+                        widget.product.totalRating > 0
+                            ? Row(
+                              mainAxisSize:
+                                  MainAxisSize.min, // QUAN TRỌNG: Thu gọn Row
+                              children: [
+                                // Stars sát nhau
+                                ...List.generate(
+                                  5,
+                                  (index) => Icon(
+                                    index < widget.product.averageRating.round()
+                                        ? Icons.star
+                                        : Icons.star_border,
+                                    color: Colors.amber,
+                                    size: 11,
+                                  ),
+                                ),
+                                const SizedBox(width: 2), // Chỉ 2px khoảng cách
+                                Text(
+                                  "(${widget.product.totalRating})",
+                                  style: TextStyle(
+                                    fontSize: 9,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              ],
+                            )
+                            : Text(
+                              "No ratings",
+                              style: TextStyle(
+                                fontSize: 9,
+                                color: Colors.grey[600],
+                                fontStyle: FontStyle.italic,
                               ),
                             ),
-                          ),
-                          Text(
-                            "(${widget.product.totalRating})",
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                        ],
-                      )
-                    else
-                      Text(
-                        "No ratings yet",
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
+                  ),
+                  const SizedBox(height: 4),
 
-                    // Product Name
-                    Expanded(
-                      child: Text(
-                        widget.product.productName,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          height: 1.2,
-                        ),
-                      ),
-                    ),
-
-                    // Price and Stock
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          '\$${widget.product.productPrice.toStringAsFixed(2)}',
+                  // Bottom row với Price và In Stock
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      // Price
+                      Expanded(
+                        child: Text(
+                          '${widget.product.productPrice.toStringAsFixed(0)} VND',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             color: Colors.red[700],
-                            fontSize: 16,
+                            fontSize: 13,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-
-                        // In Stock Tag
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.green[50],
-                            borderRadius: BorderRadius.circular(4),
-                            border: Border.all(
-                              color: Colors.green[300]!,
-                              width: 0.5,
-                            ),
-                          ),
-                          child: Text(
-                            'In Stock',
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.green[700],
-                            ),
+                      ),
+                      const SizedBox(width: 4),
+                      // In Stock Tag
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 4,
+                          vertical: 1,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.green[50],
+                          borderRadius: BorderRadius.circular(3),
+                          border: Border.all(
+                            color: Colors.green[300]!,
+                            width: 0.5,
                           ),
                         ),
-                      ],
-                    ),
-                  ],
-                ),
+                        child: Text(
+                          'Stock',
+                          style: TextStyle(
+                            fontSize: 8,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.green[700],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ],

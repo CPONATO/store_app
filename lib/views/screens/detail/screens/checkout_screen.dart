@@ -414,7 +414,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                           ),
                           const Spacer(),
                           Text(
-                            '\$${cartItem.productPrice.toStringAsFixed(2)}',
+                            '${cartItem.productPrice.toStringAsFixed(0)} VND',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -584,20 +584,20 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          _buildSummaryRow('Subtotal', '\$${totalAmount.toStringAsFixed(2)}'),
+          _buildSummaryRow('Subtotal', '${totalAmount.toStringAsFixed(0)} VND'),
           const SizedBox(height: 8),
-          _buildSummaryRow('Shipping', '\$5.00'),
+          _buildSummaryRow('Shipping', '20000 VND'),
           const SizedBox(height: 8),
           _buildSummaryRow(
             'Tax',
-            '\$${(totalAmount * 0.05).toStringAsFixed(2)}',
+            '${(totalAmount * 0.05).toStringAsFixed(0)} VND',
           ),
           const SizedBox(height: 12),
           Divider(color: Colors.grey[300]),
           const SizedBox(height: 12),
           _buildSummaryRow(
             'Total',
-            '\$${(totalAmount + 5.0 + (totalAmount * 0.05)).toStringAsFixed(2)}',
+            '${(totalAmount + 20000 + (totalAmount * 0.05)).toStringAsFixed(0)} VND',
             isBold: true,
           ),
         ],
@@ -632,9 +632,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   Widget _buildBottomCheckoutBar(double totalAmount) {
     final _cartProvider = ref.read(cartProvider.notifier);
     final OrderController _orderController = OrderController();
-
     final user = ref.watch(userProvider);
-
     final finalTotal = totalAmount + 5.0 + (totalAmount * 0.05);
 
     return Container(
@@ -688,7 +686,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                           );
                         },
                         child: Text(
-                          "Please Enter Shipping Adress",
+                          "Please Enter Shipping Address",
                           style: TextStyle(
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
@@ -698,61 +696,134 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                       )
                       : ElevatedButton(
                         onPressed: () async {
-                          if (selectedPaymentMethod == 'stripe') {
-                            // Xử lý thanh toán Stripe
-                          } else {
-                            // In ra toàn bộ thông tin giỏ hàng trước khi tạo đơn hàng
-                            print(
-                              "Checking cart items before creating orders:",
+                          print("=== STARTING ORDER PROCESS ===");
+
+                          // KIỂM TRA CÁC ĐIỀU KIỆN CƠ BẢN
+                          final cartItems = _cartProvider.getCartItems;
+                          print("Cart items count: ${cartItems.length}");
+                          print("User ID: ${user.id}");
+                          print("User state: ${user.state}");
+                          print("User city: ${user.city}");
+                          print("User locality: ${user.locality}");
+
+                          if (cartItems.isEmpty) {
+                            showSnackBar(context, "Cart is empty!");
+                            return;
+                          }
+
+                          if (user.id.isEmpty) {
+                            showSnackBar(context, "User ID is missing!");
+                            return;
+                          }
+
+                          // HIỂN THỊ LOADING
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder:
+                                (context) => AlertDialog(
+                                  content: Row(
+                                    children: [
+                                      CircularProgressIndicator(),
+                                      SizedBox(width: 20),
+                                      Text("Creating orders..."),
+                                    ],
+                                  ),
+                                ),
+                          );
+
+                          try {
+                            // TEST VỚI CHỈ 1 SẢN PHẨM ĐẦU TIÊN
+                            final firstItem = cartItems.values.first;
+
+                            print("--- UPLOADING FIRST ITEM ---");
+                            print("Product Name: ${firstItem.productName}");
+                            print("Product ID: ${firstItem.productId}");
+                            print("Product Price: ${firstItem.productPrice}");
+                            print("Quantity: ${firstItem.quantity}");
+                            print("Vendor ID: ${firstItem.vendorId}");
+                            print("Category: ${firstItem.category}");
+                            print("Image: ${firstItem.image[0]}");
+
+                            await _orderController.uploadOrders(
+                              id: '',
+                              fullName: user.fullName,
+                              email: user.email,
+                              state: user.state,
+                              city: user.city,
+                              locality: user.locality,
+                              productName: firstItem.productName,
+                              productPrice: firstItem.productPrice,
+                              quantity: firstItem.quantity,
+                              category: firstItem.category,
+                              image: firstItem.image[0],
+                              buyerId: user.id,
+                              vendorId: firstItem.vendorId,
+                              processing: true,
+                              delivered: false,
+                              productId: firstItem.productId,
+                              context: context,
                             );
-                            _cartProvider.getCartItems.forEach((key, item) {
-                              print(
-                                "Key: $key, Product ID: ${item.productId}, Product Name: ${item.productName}",
-                              );
-                            });
 
-                            await Future.forEach(
-                              _cartProvider.getCartItems.entries,
-                              (entry) async {
-                                var key = entry.key;
-                                var item = entry.value;
+                            print("✅ ORDER UPLOADED SUCCESSFULLY");
 
-                                // Thêm log để kiểm tra
-                                print(
-                                  "Creating order for product with key: $key, product ID: ${item.productId}",
-                                );
+                            // Đóng loading
+                            Navigator.of(context).pop();
 
-                                await _orderController.uploadOrders(
-                                  id: '',
-                                  fullName: ref.read(userProvider)!.fullName,
-                                  email: ref.read(userProvider)!.email,
-                                  state: ref.read(userProvider)!.state,
-                                  city: ref.read(userProvider)!.city,
-                                  locality: ref.read(userProvider)!.locality,
-                                  productName: item.productName,
-                                  productPrice: item.productPrice,
-                                  quantity: item.quantity,
-                                  category: item.category,
-                                  image: item.image[0],
-                                  buyerId: ref.read(userProvider)!.id,
-                                  vendorId: item.vendorId,
-                                  processing: true,
-                                  delivered: false,
-                                  productId: item.productId,
-                                  context: context,
-                                );
-                              },
+                            // Thông báo thành công
+                            showDialog(
+                              context: context,
+                              builder:
+                                  (context) => AlertDialog(
+                                    title: Text("Success!"),
+                                    content: Text(
+                                      "Order created successfully!\n\nProduct: ${firstItem.productName}",
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+
+                                          // CHỈ CLEAR CART SAU KHI THÀNH CÔNG
+                                          _cartProvider.clearCart();
+
+                                          Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder:
+                                                  (context) => MainScreen(),
+                                            ),
+                                          );
+                                        },
+                                        child: Text("OK"),
+                                      ),
+                                    ],
+                                  ),
                             );
+                          } catch (e, stackTrace) {
+                            print("❌ ERROR CREATING ORDER: $e");
+                            print("Stack trace: $stackTrace");
 
-                            // **SỬA LẠI DÒNG NÀY:** Sử dụng clearCart() thay vì clearAllCartData()
-                            _cartProvider
-                                .clearCart(); // Chỉ clear cart của user hiện tại, không clear tất cả
+                            // Đóng loading
+                            Navigator.of(context).pop();
 
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => MainScreen(),
-                              ),
+                            // Hiển thị lỗi chi tiết
+                            showDialog(
+                              context: context,
+                              builder:
+                                  (context) => AlertDialog(
+                                    title: Text("Order Failed"),
+                                    content: Text(
+                                      "Error: $e\n\nPlease check your internet connection and try again.",
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed:
+                                            () => Navigator.of(context).pop(),
+                                        child: Text("OK"),
+                                      ),
+                                    ],
+                                  ),
                             );
                           }
                         },
@@ -769,11 +840,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                           ),
                           elevation: 2,
                         ),
-                        child: Text(
-                          selectedPaymentMethod == 'stripe'
-                              ? 'Pay Now'
-                              : 'Place Order',
-                          style: const TextStyle(
+                        child: const Text(
+                          'Place Order (Test)',
+                          style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,
                             fontWeight: FontWeight.bold,

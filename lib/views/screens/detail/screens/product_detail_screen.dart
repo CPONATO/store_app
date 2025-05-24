@@ -352,6 +352,12 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     );
   }
 
+  // Sửa lại phần _buildProductDetails trong product_detail_screen.dart
+  // Chỉ khắc phục overflow, giữ nguyên format giá gốc
+
+  // Sửa lại phần _buildProductDetails trong product_detail_screen.dart
+  // Chỉ khắc phục overflow, giữ nguyên format giá gốc
+
   Widget _buildProductDetails() {
     final relatedProduct = ref.watch(relatedProductProvider);
 
@@ -388,12 +394,14 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      '\$${widget.product.productPrice.toStringAsFixed(2)}',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red[700],
+                    Expanded(
+                      child: Text(
+                        '${widget.product.productPrice.toStringAsFixed(0)} VND',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red[700],
+                        ),
                       ),
                     ),
                     Container(
@@ -417,19 +425,46 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                Row(
+
+                // SỬA LẠI PHẦN NÀY - Chia thành nhiều dòng
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Chip(
-                      backgroundColor: Colors.blue[50],
-                      label: Text(
-                        widget.product.category,
-                        style: TextStyle(
-                          color: Colors.blue[700],
-                          fontWeight: FontWeight.w500,
+                    // Dòng 1: Category - SÁT NHAU HỚN
+                    Wrap(
+                      spacing: 6, // Giảm khoảng cách từ 8 xuống 6
+                      runSpacing: 4,
+                      children: [
+                        Chip(
+                          backgroundColor: Colors.blue[50],
+                          materialTapTargetSize:
+                              MaterialTapTargetSize.shrinkWrap, // Thu gọn
+                          label: Text(
+                            widget.product.category,
+                            style: TextStyle(
+                              color: Colors.blue[700],
+                              fontWeight: FontWeight.w500,
+                              fontSize: 13, // Giảm font size
+                            ),
+                          ),
                         ),
-                      ),
+                        Chip(
+                          backgroundColor: Colors.grey[200],
+                          materialTapTargetSize:
+                              MaterialTapTargetSize.shrinkWrap, // Thu gọn
+                          label: Text(
+                            widget.product.subCategory,
+                            style: const TextStyle(
+                              color: Colors.black87,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 13, // Giảm font size
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(height: 8),
+                    // Dòng 2: Rating
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 12,
@@ -496,17 +531,6 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                                   ),
                                 ],
                               ),
-                    ),
-                    const SizedBox(width: 8),
-                    Chip(
-                      backgroundColor: Colors.grey[200],
-                      label: Text(
-                        widget.product.subCategory,
-                        style: const TextStyle(
-                          color: Colors.black87,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
                     ),
                   ],
                 ),

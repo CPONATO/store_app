@@ -401,7 +401,7 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        '\$${order.productPrice.toStringAsFixed(2)}',
+                        '${order.productPrice.toStringAsFixed(0)} VND',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 18,
@@ -442,7 +442,7 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
                       style: TextStyle(fontSize: 12, color: Colors.grey),
                     ),
                     Text(
-                      '\$${(order.productPrice * order.quantity).toStringAsFixed(2)}',
+                      '${(order.productPrice * order.quantity).toStringAsFixed(0)} VND',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,

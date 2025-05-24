@@ -198,18 +198,6 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
           ),
 
           // Subcategories section
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Text(
-              'Subcategories',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.blue[800],
-              ),
-            ),
-          ),
-
           subcategories.isNotEmpty
               ? Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -221,7 +209,8 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                     mainAxisSpacing: 12,
                     crossAxisSpacing: 12,
                     crossAxisCount: 3,
-                    childAspectRatio: 0.8,
+                    childAspectRatio:
+                        0.5, // Thay đổi từ 0.8 thành 0.7 để có thêm không gian chiều cao
                   ),
                   itemBuilder: (context, index) {
                     final subcategory = subcategories[index];

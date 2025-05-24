@@ -18,9 +18,7 @@ class SubcategoryTileWidget extends StatelessWidget {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(
-                12,
-              ), // Rounded corners for square
+              borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
                   color: Colors.grey.withOpacity(0.2),
@@ -65,26 +63,20 @@ class SubcategoryTileWidget extends StatelessWidget {
 
           const SizedBox(height: 8),
 
-          // Title with better text styling
-          Container(
-            width: 150,
-            height: 14,
-            child: Material(
-              color: Colors.transparent,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                child: Text(
-                  title,
-                  textAlign: TextAlign.center,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 2,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.blue[800],
-                    height: 1.1,
-                  ),
-                ),
+          // Title with fixed container size
+          SizedBox(
+            width: 80, // Match the image width
+            height: 32, // Fixed height for text
+            child: Text(
+              title,
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Colors.blue[800],
+                height: 1.2, // Line height
               ),
             ),
           ),

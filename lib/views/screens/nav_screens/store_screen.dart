@@ -180,6 +180,7 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
   Widget _buildVendorCard(vendor) {
     return Card(
       elevation: 4,
+      color: Colors.white, // Thêm dòng này để đảm bảo card có màu trắng
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: InkWell(
         onTap: () {
@@ -191,50 +192,61 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
           );
         },
         borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Hero(
-                tag: 'vendor_${vendor.id}',
-                child: CircleAvatar(
-                  radius: 40,
-                  backgroundColor: Colors.grey[200],
-                  backgroundImage:
-                      vendor.storeImage != null && vendor.storeImage!.isNotEmpty
-                          ? NetworkImage(vendor.storeImage!)
-                          : null,
-                  child:
-                      vendor.storeImage == null || vendor.storeImage!.isEmpty
-                          ? Icon(Icons.store, size: 40, color: Colors.grey[600])
-                          : null,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white, // Màu nền cho container bên trong
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Hero(
+                  tag: 'vendor_${vendor.id}',
+                  child: CircleAvatar(
+                    radius: 40,
+                    backgroundColor: Colors.grey[200],
+                    backgroundImage:
+                        vendor.storeImage != null &&
+                                vendor.storeImage!.isNotEmpty
+                            ? NetworkImage(vendor.storeImage!)
+                            : null,
+                    child:
+                        vendor.storeImage == null || vendor.storeImage!.isEmpty
+                            ? Icon(
+                              Icons.store,
+                              size: 40,
+                              color: Colors.grey[600],
+                            )
+                            : null,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                vendor.fullName ?? 'No name',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              if (vendor.storeDescription != null &&
-                  vendor.storeDescription!.isNotEmpty) ...[
-                const SizedBox(height: 4),
+                const SizedBox(height: 12),
                 Text(
-                  vendor.storeDescription!,
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  vendor.fullName ?? 'No name',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
                   textAlign: TextAlign.center,
-                  maxLines: 1,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
+                if (vendor.storeDescription != null &&
+                    vendor.storeDescription!.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    vendor.storeDescription!,
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),
