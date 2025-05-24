@@ -744,13 +744,16 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                               },
                             );
 
+                            // **SỬA LẠI DÒNG NÀY:** Sử dụng clearCart() thay vì clearAllCartData()
+                            _cartProvider
+                                .clearCart(); // Chỉ clear cart của user hiện tại, không clear tất cả
+
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => MainScreen(),
                               ),
                             );
-                            _cartProvider.clearCart();
                           }
                         },
                         style: ElevatedButton.styleFrom(

@@ -221,8 +221,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                     mainAxisSpacing: 12,
                     crossAxisSpacing: 12,
                     crossAxisCount: 3,
-                    childAspectRatio:
-                        0.8, // Changed from 0.75 to 0.8 for more height
+                    childAspectRatio: 0.8,
                   ),
                   itemBuilder: (context, index) {
                     final subcategory = subcategories[index];

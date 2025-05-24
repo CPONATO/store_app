@@ -33,6 +33,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         });
   }
 
+  bool _obscurePassword = true;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -118,6 +120,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                   const SizedBox(height: 20),
                   TextFormField(
+                    obscureText: _obscurePassword,
                     onChanged: (value) {
                       password = value;
                     },
@@ -151,8 +154,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                       ),
                       suffixIcon: IconButton(
-                        onPressed: () {},
-                        icon: const Icon(Icons.visibility),
+                        onPressed: () {
+                          setState(() {
+                            _obscurePassword = !_obscurePassword;
+                          });
+                        },
+                        icon: Icon(
+                          _obscurePassword
+                              ? Icons.visibility
+                              // ignore: dead_code
+                              : Icons.visibility_off,
+                        ),
                       ),
                     ),
                   ),
