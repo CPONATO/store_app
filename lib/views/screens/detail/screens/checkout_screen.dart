@@ -588,16 +588,12 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           const SizedBox(height: 8),
           _buildSummaryRow('Shipping', '20000 VND'),
           const SizedBox(height: 8),
-          _buildSummaryRow(
-            'Tax',
-            '${(totalAmount * 0.05).toStringAsFixed(0)} VND',
-          ),
-          const SizedBox(height: 12),
+
           Divider(color: Colors.grey[300]),
           const SizedBox(height: 12),
           _buildSummaryRow(
             'Total',
-            '${(totalAmount + 20000 + (totalAmount * 0.05)).toStringAsFixed(0)} VND',
+            '${(totalAmount + 20000).toStringAsFixed(0)} VND',
             isBold: true,
           ),
         ],
@@ -633,7 +629,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     final _cartProvider = ref.read(cartProvider.notifier);
     final OrderController _orderController = OrderController();
     final user = ref.watch(userProvider);
-    final finalTotal = totalAmount + 5.0 + (totalAmount * 0.05);
+    final finalTotal = totalAmount + 20000;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -661,7 +657,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "\$${finalTotal.toStringAsFixed(2)}",
+                  "${finalTotal.toStringAsFixed(0)} VND",
                   style: TextStyle(
                     color: Colors.blue[800],
                     fontSize: 20,
@@ -841,7 +837,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                           elevation: 2,
                         ),
                         child: const Text(
-                          'Place Order (Test)',
+                          'Place Order',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,

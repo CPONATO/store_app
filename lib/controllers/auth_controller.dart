@@ -8,6 +8,7 @@ import 'package:shop_app/global_variables.dart';
 import 'package:shop_app/models/user.dart';
 import 'package:shop_app/provider/cart_provider.dart';
 import 'package:shop_app/provider/delivered_order_count_provider.dart';
+import 'package:shop_app/provider/favorite_provider.dart';
 import 'package:shop_app/provider/user_provider.dart';
 import 'package:shop_app/services/manage_http_response.dart';
 import 'package:shop_app/views/screens/authentication_screens/login_screen.dart';
@@ -86,8 +87,11 @@ class AuthController {
           await preferences.remove('auth_token');
           await preferences.remove('user');
 
-          // **SỬA LẠI:** Chỉ reset cart state, KHÔNG xóa cart data trong SharedPreferences
+          // **SỬA LẠI:** Reset cả cart và favorite state, KHÔNG xóa data trong SharedPreferences
           providerContainer.read(cartProvider.notifier).resetCartState();
+          providerContainer
+              .read(favoriteProvider.notifier)
+              .resetFavoriteState(); // THÊM DÒNG NÀY
 
           // Đặt lại trạng thái người dùng trong provider
           providerContainer.read(userProvider.notifier).signOut();
@@ -109,11 +113,14 @@ class AuthController {
           // Thiết lập trạng thái người dùng mới
           providerContainer.read(userProvider.notifier).setUser(userJson);
 
-          // **QUAN TRỌNG:** Load cart CỦA USER MỚI từ SharedPreferences
+          // **QUAN TRỌNG:** Load cả cart và favorites CỦA USER MỚI từ SharedPreferences
           final newUser = User.fromJson(userJson);
           await providerContainer
               .read(cartProvider.notifier)
               .loadCartItemsForUser(newUser.id);
+          await providerContainer
+              .read(favoriteProvider.notifier)
+              .loadFavoritesForUser(newUser.id); // THÊM DÒNG NÀY
 
           // Điều hướng
           Navigator.pushAndRemoveUntil(
@@ -130,14 +137,16 @@ class AuthController {
       showSnackBar(context, "Lỗi khi đăng nhập, vui lòng thử lại");
     }
   }
-
   // Trong phần signOutUSer method:
 
   Future<void> signOutUSer({required BuildContext context}) async {
     try {
-      // **SỬA LẠI:** KHÔNG xóa cart data, chỉ reset state
-      // Cart của user được GIỮ LẠI trong SharedPreferences để lần sau đăng nhập vẫn có
+      // **SỬA LẠI:** KHÔNG xóa cart và favorite data, chỉ reset state
+      // Cart và favorite của user được GIỮ LẠI trong SharedPreferences để lần sau đăng nhập vẫn có
       providerContainer.read(cartProvider.notifier).resetCartState();
+      providerContainer
+          .read(favoriteProvider.notifier)
+          .resetFavoriteState(); // THÊM DÒNG NÀY
 
       // Xóa dữ liệu auth từ SharedPreferences
       SharedPreferences preferences = await SharedPreferences.getInstance();

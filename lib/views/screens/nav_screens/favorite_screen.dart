@@ -226,7 +226,7 @@ class _FavoriteScreenState extends ConsumerState<FavoriteScreen> {
                             children: [
                               // Price
                               Text(
-                                "\$${favoriteData.productPrice.toStringAsFixed(2)}",
+                                "${favoriteData.productPrice.toStringAsFixed(0)} VND",
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,

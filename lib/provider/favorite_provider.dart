@@ -11,31 +11,70 @@ final favoriteProvider =
     });
 
 class FavoriteNotifier extends StateNotifier<Map<String, Favorite>> {
-  FavoriteNotifier() : super({}) {
-    _loadFavorite();
-  }
+  FavoriteNotifier() : super({});
 
-  Future<void> _loadFavorite() async {
+  String? _currentUserId;
+
+  // Load favorites for specific user
+  Future<void> loadFavoritesForUser(String userId) async {
+    _currentUserId = userId;
     final prefs = await SharedPreferences.getInstance();
-    final favoriteString = prefs.getString('favorite');
+    final favoriteString = prefs.getString('favorites_$userId');
 
     if (favoriteString != null) {
-      final Map<String, dynamic> favoriteMap = jsonDecode(favoriteString);
-
-      final favorites = favoriteMap.map(
-        (key, value) => MapEntry(key, Favorite.fromJson(value)),
-      );
-
-      state = favorites;
+      try {
+        final Map<String, dynamic> favoriteMap = jsonDecode(favoriteString);
+        final favorites = favoriteMap.map(
+          (key, value) => MapEntry(key, Favorite.fromJson(value)),
+        );
+        state = favorites;
+      } catch (e) {
+        print('Error loading favorites for user $userId: $e');
+        state = {};
+      }
+    } else {
+      state = {};
     }
   }
 
-  Future<void> _saveFavorite() async {
+  // Save favorites for current user
+  Future<void> _saveFavorites() async {
+    if (_currentUserId == null) return;
+
     final prefs = await SharedPreferences.getInstance();
-
     final favoriteString = jsonEncode(state);
+    await prefs.setString('favorites_$_currentUserId', favoriteString);
+  }
 
-    await prefs.setString('favorite', favoriteString);
+  // Clear favorites for current user
+  Future<void> clearFavoritesForUser() async {
+    if (_currentUserId == null) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('favorites_$_currentUserId');
+    state = {};
+  }
+
+  // Clear all favorites data (chỉ dùng khi cần thiết)
+  Future<void> clearAllFavoritesData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final keys = prefs.getKeys();
+
+    // Remove all favorites-related keys
+    for (String key in keys) {
+      if (key.startsWith('favorites_')) {
+        await prefs.remove(key);
+      }
+    }
+
+    _currentUserId = null;
+    state = {};
+  }
+
+  // Reset favorites state khi đăng xuất (chỉ clear state, không xóa SharedPreferences)
+  void resetFavoriteState() {
+    _currentUserId = null;
+    state = {};
   }
 
   void addProductToFavorite({
@@ -50,6 +89,11 @@ class FavoriteNotifier extends StateNotifier<Map<String, Favorite>> {
     required String description,
     required String fullName,
   }) {
+    if (_currentUserId == null) {
+      print('Warning: No user logged in, cannot add to favorites');
+      return;
+    }
+
     state[productId] = Favorite(
       productName: productName,
       productPrice: productPrice,
@@ -64,14 +108,18 @@ class FavoriteNotifier extends StateNotifier<Map<String, Favorite>> {
     );
 
     state = {...state};
-    _saveFavorite();
+    _saveFavorites();
   }
 
   void removeFavoriteItem(String productId) {
+    if (_currentUserId == null) return;
+
     state.remove(productId);
     state = {...state};
-    _saveFavorite();
+    _saveFavorites();
   }
 
   Map<String, Favorite> get getFavoriteItems => state;
+
+  String? get currentUserId => _currentUserId;
 }

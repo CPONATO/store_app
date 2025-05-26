@@ -3,12 +3,15 @@ import 'package:flutter/material.dart';
 class ReuseableTextWidget extends StatelessWidget {
   final String title;
   final String subTitle;
+  final VoidCallback? onPressed; // Thêm callback cho navigation
 
   const ReuseableTextWidget({
     super.key,
     required this.title,
     required this.subTitle,
+    this.onPressed, // Optional callback
   });
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -25,7 +28,7 @@ class ReuseableTextWidget extends StatelessWidget {
             ),
           ),
           TextButton(
-            onPressed: () {},
+            onPressed: onPressed, // Sử dụng callback được truyền vào
             style: TextButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             ),
@@ -38,12 +41,6 @@ class ReuseableTextWidget extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                     fontSize: 14,
                   ),
-                ),
-                const SizedBox(width: 4),
-                Icon(
-                  Icons.arrow_forward_ios,
-                  size: 12,
-                  color: Colors.blue[700],
                 ),
               ],
             ),

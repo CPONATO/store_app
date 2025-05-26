@@ -61,21 +61,7 @@ class _SubcategoryProductScreenState
             color: Colors.white,
           ),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search, color: Colors.white),
-            onPressed: () {
-              // Search functionality can be added here
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.tune, color: Colors.white),
-            onPressed: () {
-              // Filter functionality can be added here
-            },
-          ),
-          const SizedBox(width: 8),
-        ],
+
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(4.0),
           child: Container(

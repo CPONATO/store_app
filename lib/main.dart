@@ -6,6 +6,7 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shop_app/models/user.dart';
 import 'package:shop_app/provider/cart_provider.dart';
+import 'package:shop_app/provider/favorite_provider.dart'; // THÊM IMPORT
 import 'package:shop_app/provider/user_provider.dart';
 import 'package:shop_app/views/screens/authentication_screens/login_screen.dart';
 import 'package:shop_app/views/screens/main_screen.dart';
@@ -46,8 +47,9 @@ class MyApp extends ConsumerWidget {
     // Xóa bất kỳ trạng thái người dùng cũ nào có thể tồn tại
     ref.read(userProvider.notifier).signOut();
 
-    // **SỬA LẠI:** Chỉ reset cart state, KHÔNG xóa cart data khỏi SharedPreferences
+    // **SỬA LẠI:** Reset cả cart và favorite state
     ref.read(cartProvider.notifier).resetCartState();
+    ref.read(favoriteProvider.notifier).resetFavoriteState(); // THÊM DÒNG NÀY
 
     String? token = preferences.getString('auth_token');
     String? userJson = preferences.getString('user');
@@ -60,9 +62,12 @@ class MyApp extends ConsumerWidget {
         // Thiết lập trạng thái người dùng mới
         ref.read(userProvider.notifier).setUser(userJson);
 
-        // **QUAN TRỌNG:** Load cart của user từ SharedPreferences (cart được bảo toàn)
+        // **QUAN TRỌNG:** Load cả cart và favorites của user từ SharedPreferences
         final user = User.fromJson(userJson);
         await ref.read(cartProvider.notifier).loadCartItemsForUser(user.id);
+        await ref
+            .read(favoriteProvider.notifier)
+            .loadFavoritesForUser(user.id); // THÊM DÒNG NÀY
       } catch (e) {
         print("Lỗi khi phân tích dữ liệu người dùng: $e");
 
@@ -71,6 +76,9 @@ class MyApp extends ConsumerWidget {
         await preferences.remove('user');
         ref.read(userProvider.notifier).signOut();
         ref.read(cartProvider.notifier).resetCartState();
+        ref
+            .read(favoriteProvider.notifier)
+            .resetFavoriteState(); // THÊM DÒNG NÀY
       }
     }
   }
