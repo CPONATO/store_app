@@ -1,9 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:shop_app/controllers/order_controller.dart';
-import 'package:shop_app/models/order.dart';
 import 'package:shop_app/provider/cart_provider.dart';
 import 'package:shop_app/provider/user_provider.dart';
 import 'package:shop_app/services/manage_http_response.dart';
@@ -19,77 +17,6 @@ class CheckoutScreen extends ConsumerStatefulWidget {
 
 class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   String selectedPaymentMethod = 'Cash On Delivery';
-  // Future<void> handleStripePayment(BuildContext context) async {
-  //   final OrderController _orderController = OrderController();
-  //   final cartData = ref.read(cartProvider);
-  //   final user = ref.read(userProvider);
-  //   bool isloading = false;
-
-  //   if (cartData.isEmpty) {
-  //     showSnackBar(context, "Your cart is empty");
-  //     return;
-  //   }
-
-  //   if (user == null) {
-  //     showSnackBar(context, "User information is missing");
-  //     return;
-  //   }
-
-  //   try {
-  //     setState(() {
-  //       isloading = true;
-  //     });
-  //     //calculate the total amount for all item in cart
-  //     final totalAmount = cartData.values.fold(
-  //       0.0,
-  //       (sum, item) => sum + (item.quantity * item.productPrice),
-  //     );
-  //     //check if the total amount is a valid amount
-  //     if (totalAmount <= 0) {
-  //       showSnackBar(context, "Total amount must be greater than 0");
-  //       return;
-  //     }
-  //     final paymentItent = await _orderController.createPaymentItent(
-  //       amount: (totalAmount * 100).toInt(),
-  //       currency: 'usd',
-  //     );
-
-  //     await Stripe.instance.initPaymentSheet(
-  //       paymentSheetParameters: SetupPaymentSheetParameters(
-  //         paymentIntentClientSecret: paymentItent['client_secret'],
-  //         merchantDisplayName: 'K Store',
-  //       ),
-  //     );
-
-  //     await Stripe.instance.presentPaymentSheet();
-  //     for (final entry in cartData.entries) {
-  //       final item = entry.value;
-  //       await _orderController.uploadOrders(
-  //         id: '',
-  //         fullName: ref.read(userProvider)!.fullName,
-  //         email: ref.read(userProvider)!.email,
-  //         state: ref.read(userProvider)!.state,
-  //         city: ref.read(userProvider)!.city,
-  //         locality: ref.read(userProvider)!.locality,
-  //         productName: item.productName,
-  //         productPrice: item.productPrice,
-  //         quantity: item.quantity,
-  //         category: item.category,
-  //         image: item.image[0],
-  //         buyerId: ref.read(userProvider)!.id,
-  //         vendorId: item.vendorId,
-  //         processing: true,
-  //         delivered: false,
-  //         productId: item.productId,
-  //         context: context,
-  //       );
-  //     }
-  //   } catch (e) {
-  //     showSnackBar(context, 'Payment failed: $e');
-  //   } finally {
-  //     isloading = false;
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -193,7 +120,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               context,
               MaterialPageRoute(
                 builder: (context) {
-                  return ShippingAddressScreen();
+                  return const ShippingAddressScreen();
                 },
               ),
             );
@@ -243,12 +170,12 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                       user.state.isNotEmpty
                           ? Text(
                             user.state,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                             ),
                           )
-                          : Text(
+                          : const Text(
                             'Enter your state',
                             style: TextStyle(
                               fontSize: 14,
@@ -627,7 +554,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
 
   Widget _buildBottomCheckoutBar(double totalAmount) {
     final _cartProvider = ref.read(cartProvider.notifier);
-    final OrderController _orderController = OrderController();
+    final OrderController orderController = OrderController();
     final user = ref.watch(userProvider);
     final finalTotal = totalAmount + 20000;
 
@@ -676,12 +603,12 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                             context,
                             MaterialPageRoute(
                               builder: (context) {
-                                return ShippingAddressScreen();
+                                return const ShippingAddressScreen();
                               },
                             ),
                           );
                         },
-                        child: Text(
+                        child: const Text(
                           "Please Enter Shipping Address",
                           style: TextStyle(
                             color: Colors.black,
@@ -717,7 +644,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                             context: context,
                             barrierDismissible: false,
                             builder:
-                                (context) => AlertDialog(
+                                (context) => const AlertDialog(
                                   content: Row(
                                     children: [
                                       CircularProgressIndicator(),
@@ -741,7 +668,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                             print("Category: ${firstItem.category}");
                             print("Image: ${firstItem.image[0]}");
 
-                            await _orderController.uploadOrders(
+                            await orderController.uploadOrders(
                               id: '',
                               fullName: user.fullName,
                               email: user.email,
@@ -771,7 +698,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                               context: context,
                               builder:
                                   (context) => AlertDialog(
-                                    title: Text("Success!"),
+                                    title: const Text("Success!"),
                                     content: Text(
                                       "Order created successfully!\n\nProduct: ${firstItem.productName}",
                                     ),
@@ -787,11 +714,12 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                                             context,
                                             MaterialPageRoute(
                                               builder:
-                                                  (context) => MainScreen(),
+                                                  (context) =>
+                                                      const MainScreen(),
                                             ),
                                           );
                                         },
-                                        child: Text("OK"),
+                                        child: const Text("OK"),
                                       ),
                                     ],
                                   ),
@@ -808,7 +736,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                               context: context,
                               builder:
                                   (context) => AlertDialog(
-                                    title: Text("Order Failed"),
+                                    title: const Text("Order Failed"),
                                     content: Text(
                                       "Error: $e\n\nPlease check your internet connection and try again.",
                                     ),
@@ -816,7 +744,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                                       TextButton(
                                         onPressed:
                                             () => Navigator.of(context).pop(),
-                                        child: Text("OK"),
+                                        child: const Text("OK"),
                                       ),
                                     ],
                                   ),

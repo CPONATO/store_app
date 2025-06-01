@@ -12,7 +12,7 @@ class OrderScreen extends ConsumerStatefulWidget {
   const OrderScreen({super.key});
 
   @override
-  _OrderScreenState createState() => _OrderScreenState();
+  ConsumerState<OrderScreen> createState() => _OrderScreenState();
 }
 
 class _OrderScreenState extends ConsumerState<OrderScreen> {
@@ -494,15 +494,15 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
                     const SizedBox(width: 8),
                     TextButton.icon(
                       onPressed: () {},
-                      icon: Icon(
+                      icon: const Icon(
                         Icons.visibility_outlined,
                         size: 16,
-                        color: const Color.fromARGB(255, 5, 151, 0),
+                        color: Color.fromARGB(255, 5, 151, 0),
                       ),
-                      label: Text(
+                      label: const Text(
                         'Review',
                         style: TextStyle(
-                          color: const Color.fromARGB(255, 5, 151, 0),
+                          color: Color.fromARGB(255, 5, 151, 0),
                           fontWeight: FontWeight.bold,
                         ),
                       ),

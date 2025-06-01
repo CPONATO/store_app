@@ -4,7 +4,11 @@ class SubcategoryTileWidget extends StatelessWidget {
   final String image;
   final String title;
 
-  SubcategoryTileWidget({super.key, required this.image, required this.title});
+  const SubcategoryTileWidget({
+    super.key,
+    required this.image,
+    required this.title,
+  });
 
   @override
   Widget build(BuildContext context) {

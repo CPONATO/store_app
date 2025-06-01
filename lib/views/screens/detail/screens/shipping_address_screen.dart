@@ -8,7 +8,8 @@ class ShippingAddressScreen extends ConsumerStatefulWidget {
   const ShippingAddressScreen({super.key});
 
   @override
-  _ShippingAddressScreenState createState() => _ShippingAddressScreenState();
+  ConsumerState<ShippingAddressScreen> createState() =>
+      _ShippingAddressScreenState();
 }
 
 class _ShippingAddressScreenState extends ConsumerState<ShippingAddressScreen> {
@@ -38,7 +39,7 @@ class _ShippingAddressScreenState extends ConsumerState<ShippingAddressScreen> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
           ),
-          child: Padding(
+          child: const Padding(
             padding: EdgeInsets.all(15),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -479,12 +480,12 @@ class _ShippingAddressScreenState extends ConsumerState<ShippingAddressScreen> {
             ),
             elevation: 2,
           ),
-          child: Row(
+          child: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.save),
-              const SizedBox(width: 8),
-              const Text(
+              Icon(Icons.save),
+              SizedBox(width: 8),
+              Text(
                 'Save Address',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),

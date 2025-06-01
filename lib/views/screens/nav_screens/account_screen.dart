@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shop_app/controllers/auth_controller.dart';
 import 'package:shop_app/provider/cart_provider.dart';
 import 'package:shop_app/provider/favorite_provider.dart';
-import 'package:shop_app/provider/order_provider.dart';
 import 'package:shop_app/provider/user_provider.dart';
 import 'package:shop_app/provider/delivered_order_count_provider.dart';
 import 'package:shop_app/views/screens/detail/screens/order_screen.dart';
@@ -311,7 +310,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             const SizedBox(height: 8),
             Text(
               count.toString(),
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Color(0xFF1565C0),
@@ -320,7 +319,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             const SizedBox(height: 4),
             Text(
               title,
-              style: TextStyle(fontSize: 12, color: Color(0xFF757575)),
+              style: const TextStyle(fontSize: 12, color: Color(0xFF757575)),
             ),
           ],
         ),
@@ -555,7 +554,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 context: context,
                 builder:
                     (context) => AlertDialog(
-                      title: Text('Contact Support'),
+                      title: const Text('Contact Support'),
                       content: Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -565,13 +564,13 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                             title: 'Email',
                             details: 'RielEmail@gmail.com',
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           _buildContactItem(
                             icon: Icons.phone,
                             title: 'Phone',
                             details: '+84 888-123-567',
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           _buildContactItem(
                             icon: Icons.schedule,
                             title: 'Working Hours',
@@ -582,7 +581,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context),
-                          child: Text('Close'),
+                          child: const Text('Close'),
                         ),
                       ],
                     ),
@@ -622,7 +621,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             ),
             Text(
               details,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ],
         ),

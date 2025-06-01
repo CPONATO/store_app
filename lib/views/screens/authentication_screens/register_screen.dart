@@ -116,7 +116,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 Align(
                   alignment: Alignment.topLeft,
                   child: Text(
@@ -164,7 +164,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
 
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 Align(
                   alignment: Alignment.topLeft,
                   child: Text(
@@ -209,10 +209,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         height: 20,
                       ),
                     ),
-                    suffixIcon: Icon(Icons.visibility),
+                    suffixIcon: const Icon(Icons.visibility),
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
 
                 InkWell(
                   onTap: () {
@@ -225,10 +225,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     height: 50,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
-                      gradient: LinearGradient(
+                      gradient: const LinearGradient(
                         colors: [
-                          const Color.fromARGB(255, 50, 70, 252),
-                          const Color.fromARGB(255, 10, 103, 252),
+                          Color.fromARGB(255, 50, 70, 252),
+                          Color.fromARGB(255, 10, 103, 252),
                         ],
                       ),
                     ),
@@ -245,7 +245,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -262,14 +262,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           context,
                           MaterialPageRoute(
                             builder: (context) {
-                              return LoginScreen();
+                              return const LoginScreen();
                             },
                           ),
                         );
                       },
                       child:
                           _isLoading
-                              ? CircularProgressIndicator(color: Colors.white)
+                              ? const CircularProgressIndicator(
+                                color: Colors.white,
+                              )
                               : Text(
                                 'Sign in',
                                 style: GoogleFonts.roboto(

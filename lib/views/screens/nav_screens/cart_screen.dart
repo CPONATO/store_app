@@ -9,7 +9,7 @@ class CartScreen extends ConsumerStatefulWidget {
   const CartScreen({super.key});
 
   @override
-  _CartScreenState createState() => _CartScreenState();
+  ConsumerState<CartScreen> createState() => _CartScreenState();
 }
 
 class _CartScreenState extends ConsumerState<CartScreen> {
@@ -50,7 +50,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                 child: Container(
                   width: 18,
                   height: 18,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: Colors.amber,
                     shape: BoxShape.circle,
                   ),

@@ -41,8 +41,8 @@ class _InnerCategoryContentWidgetState
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(80),
+      appBar: const PreferredSize(
+        preferredSize: Size.fromHeight(80),
         child: InnerHeaderWidget(),
       ),
       body: RefreshIndicator(

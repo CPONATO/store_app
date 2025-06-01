@@ -9,7 +9,7 @@ class CategoryItemWidget extends ConsumerStatefulWidget {
   const CategoryItemWidget({super.key});
 
   @override
-  _CategoryItemWidgetState createState() => _CategoryItemWidgetState();
+  ConsumerState<CategoryItemWidget> createState() => _CategoryItemWidgetState();
 }
 
 class _CategoryItemWidgetState extends ConsumerState<CategoryItemWidget> {
@@ -33,7 +33,7 @@ class _CategoryItemWidgetState extends ConsumerState<CategoryItemWidget> {
   Widget build(BuildContext context) {
     final categories = ref.watch(categoryProvider);
 
-    return Container(
+    return SizedBox(
       height: 120, // Chiều cao cố định cho container
       child: ListView.builder(
         scrollDirection: Axis.horizontal, // Scroll ngang

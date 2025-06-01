@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shop_app/controllers/category_controller.dart';
 import 'package:shop_app/controllers/subcategory_controller.dart';
 import 'package:shop_app/models/category.dart';
-import 'package:shop_app/models/subcategory.dart';
 import 'package:shop_app/provider/category_provider.dart';
 import 'package:shop_app/provider/subcategory_prodvider.dart';
 import 'package:shop_app/views/screens/detail/screens/subcategory_product_screen.dart';

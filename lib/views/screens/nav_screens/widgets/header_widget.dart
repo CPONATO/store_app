@@ -46,7 +46,7 @@ class HeaderWidget extends StatelessWidget {
                             context,
                             MaterialPageRoute(
                               builder: (context) {
-                                return SearchProductScreen();
+                                return const SearchProductScreen();
                               },
                             ),
                           );

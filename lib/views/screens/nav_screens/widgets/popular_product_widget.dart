@@ -8,13 +8,13 @@ class PopularProductWidget extends ConsumerStatefulWidget {
   const PopularProductWidget({super.key});
 
   @override
-  _PopularProductWidgetState createState() => _PopularProductWidgetState();
+  ConsumerState<PopularProductWidget> createState() =>
+      _PopularProductWidgetState();
 }
 
 class _PopularProductWidgetState extends ConsumerState<PopularProductWidget> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _fetchProduct();
   }

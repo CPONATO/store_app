@@ -1,12 +1,20 @@
+// In product_detail_screen.dart, you need to:
+// 1. Import the vendor controller and model
+// 2. Add vendor loading functionality
+// 3. Update the seller information section
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shop_app/controllers/product_controller.dart';
+import 'package:shop_app/controllers/vendor_controller.dart'; // ADD THIS IMPORT
 import 'package:shop_app/models/product.dart';
+import 'package:shop_app/models/vendor_model.dart'; // ADD THIS IMPORT
 import 'package:shop_app/provider/cart_provider.dart';
 import 'package:shop_app/provider/favorite_provider.dart';
 import 'package:shop_app/provider/related_product_provider.dart';
 import 'package:shop_app/services/manage_http_response.dart';
+import 'package:shop_app/views/screens/detail/screens/vendor_product_screen.dart'; // ADD THIS IMPORT
 import 'package:shop_app/views/screens/nav_screens/widgets/product_item_widget.dart';
 import 'package:shop_app/views/screens/nav_screens/widgets/reuseable_text_widget.dart';
 
@@ -15,15 +23,19 @@ class ProductDetailScreen extends ConsumerStatefulWidget {
 
   const ProductDetailScreen({super.key, required this.product});
   @override
-  _ProductDetailScreenState createState() => _ProductDetailScreenState();
+  ConsumerState<ProductDetailScreen> createState() =>
+      _ProductDetailScreenState();
 }
 
 class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
+  Vendor? _vendor; // ADD THIS VARIABLE
+  bool _isLoadingVendor = false; // ADD THIS VARIABLE
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _fetchProduct();
+    _fetchVendor(); // ADD THIS CALL
   }
 
   Future<void> _fetchProduct() async {
@@ -36,6 +48,62 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     } catch (e) {
       print('$e');
     }
+  }
+
+  // ADD THIS NEW METHOD
+  Future<void> _fetchVendor() async {
+    setState(() {
+      _isLoadingVendor = true;
+    });
+
+    try {
+      final VendorController vendorController = VendorController();
+      final vendors = await vendorController.loadVendors();
+
+      // Find the vendor that matches the product's vendorId
+      final vendor = vendors.firstWhere(
+        (vendor) => vendor.id == widget.product.vendorId,
+        orElse:
+            () => Vendor(
+              id: widget.product.vendorId,
+              fullName: widget.product.fullName,
+              email: '',
+              state: '',
+              city: '',
+              locality: '',
+              role: 'vendor',
+              password: '',
+              storeImage: null,
+              storeDescription: null,
+            ),
+      );
+
+      setState(() {
+        _vendor = vendor;
+        _isLoadingVendor = false;
+      });
+    } catch (e) {
+      print('Error fetching vendor: $e');
+      setState(() {
+        _isLoadingVendor = false;
+      });
+    }
+  }
+
+  // ADD THIS HELPER METHOD (reused from store screen)
+  Widget _buildVendorAvatar(Vendor vendor) {
+    return CircleAvatar(
+      radius: 24,
+      backgroundColor: Colors.grey[200],
+      backgroundImage:
+          vendor.storeImage != null && vendor.storeImage!.isNotEmpty
+              ? NetworkImage(vendor.storeImage!)
+              : null,
+      child:
+          vendor.storeImage == null || vendor.storeImage!.isEmpty
+              ? Icon(Icons.store, size: 24, color: Colors.grey[600])
+              : null,
+    );
   }
 
   int _selectedImageIndex = 0;
@@ -53,7 +121,6 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     final cartProviderNotifier = ref.read(cartProvider.notifier);
     ref.watch(favoriteProvider);
 
-    // Sử dụng Scaffold với bottomNavigationBar để giữ nút ở dưới cùng
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
@@ -81,11 +148,11 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                 favoriteProviderData.getFavoriteItems.containsKey(
                       widget.product.id,
                     )
-                    ? Icon(
+                    ? const Icon(
                       CupertinoIcons.heart_fill,
-                      color: const Color.fromARGB(255, 253, 0, 97),
+                      color: Color.fromARGB(255, 253, 0, 97),
                     )
-                    : Icon(CupertinoIcons.heart, color: Colors.white),
+                    : const Icon(CupertinoIcons.heart, color: Colors.white),
             onPressed: () {
               favoriteProviderData.addProductToFavorite(
                 productName: widget.product.productName,
@@ -117,19 +184,16 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
           ),
         ),
       ),
-      // Phần nội dung có thể cuộn
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildImageGallery(),
             _buildProductDetails(),
-            // Thêm padding phía dưới để tránh nội dung bị che bởi thanh nút
-            SizedBox(height: 80),
+            const SizedBox(height: 80),
           ],
         ),
       ),
-      // Phần nút cố định ở dưới
       bottomNavigationBar: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
@@ -148,11 +212,8 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             Expanded(
               child: ElevatedButton.icon(
                 onPressed: () {
-                  // In ra toàn bộ thông tin sản phẩm
                   print("Product details:");
-                  print(
-                    "ID: '${widget.product.id}'",
-                  ); // Có dấu nháy để thấy khoảng trắng
+                  print("ID: '${widget.product.id}'");
                   print("Name: ${widget.product.productName}");
                   print("Price: ${widget.product.productPrice}");
                   print("Category: ${widget.product.category}");
@@ -215,7 +276,6 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
       color: Colors.white,
       child: Column(
         children: [
-          // Main image viewer
           Container(
             height: 320,
             width: double.infinity,
@@ -271,7 +331,6 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             ),
           ),
 
-          // Page indicator
           if (widget.product.images.length > 1)
             Container(
               padding: const EdgeInsets.only(bottom: 16),
@@ -296,7 +355,6 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
               ),
             ),
 
-          // Thumbnail gallery
           if (widget.product.images.length > 1)
             Container(
               height: 80,
@@ -338,7 +396,9 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                           widget.product.images[index],
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) {
-                            return Center(child: Icon(Icons.error, size: 20));
+                            return const Center(
+                              child: Icon(Icons.error, size: 20),
+                            );
                           },
                         ),
                       ),
@@ -351,12 +411,6 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
       ),
     );
   }
-
-  // Sửa lại phần _buildProductDetails trong product_detail_screen.dart
-  // Chỉ khắc phục overflow, giữ nguyên format giá gốc
-
-  // Sửa lại phần _buildProductDetails trong product_detail_screen.dart
-  // Chỉ khắc phục overflow, giữ nguyên format giá gốc
 
   Widget _buildProductDetails() {
     final relatedProduct = ref.watch(relatedProductProvider);
@@ -426,45 +480,42 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // SỬA LẠI PHẦN NÀY - Chia thành nhiều dòng
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Dòng 1: Category - SÁT NHAU HỚN
                     Wrap(
-                      spacing: 6, // Giảm khoảng cách từ 8 xuống 6
+                      spacing: 6,
                       runSpacing: 4,
                       children: [
                         Chip(
                           backgroundColor: Colors.blue[50],
                           materialTapTargetSize:
-                              MaterialTapTargetSize.shrinkWrap, // Thu gọn
+                              MaterialTapTargetSize.shrinkWrap,
                           label: Text(
                             widget.product.category,
                             style: TextStyle(
                               color: Colors.blue[700],
                               fontWeight: FontWeight.w500,
-                              fontSize: 13, // Giảm font size
+                              fontSize: 13,
                             ),
                           ),
                         ),
                         Chip(
                           backgroundColor: Colors.grey[200],
                           materialTapTargetSize:
-                              MaterialTapTargetSize.shrinkWrap, // Thu gọn
+                              MaterialTapTargetSize.shrinkWrap,
                           label: Text(
                             widget.product.subCategory,
                             style: const TextStyle(
                               color: Colors.black87,
                               fontWeight: FontWeight.w500,
-                              fontSize: 13, // Giảm font size
+                              fontSize: 13,
                             ),
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 8),
-                    // Dòng 2: Rating
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 12,
@@ -540,7 +591,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
 
           const SizedBox(height: 16),
 
-          // Seller information
+          // UPDATED SELLER INFORMATION WITH NAVIGATION AND AVATAR
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -554,34 +605,101 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                 ),
               ],
             ),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  backgroundColor: Colors.blue[100],
-                  radius: 24,
-                  child: Icon(Icons.store, color: Colors.blue[700], size: 24),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap:
+                    _vendor != null
+                        ? () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (context) =>
+                                      VendorProductScreen(vendor: _vendor!),
+                            ),
+                          );
+                        }
+                        : null,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
                     children: [
-                      Text(
-                        widget.product.fullName,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                      _isLoadingVendor
+                          ? Container(
+                            width: 48,
+                            height: 48,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Center(
+                              child: SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              ),
+                            ),
+                          )
+                          : _vendor != null
+                          ? _buildVendorAvatar(_vendor!)
+                          : CircleAvatar(
+                            backgroundColor: Colors.blue[100],
+                            radius: 24,
+                            child: Icon(
+                              Icons.store,
+                              color: Colors.blue[700],
+                              size: 24,
+                            ),
+                          ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _vendor?.fullName ?? widget.product.fullName,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Text(
+                                  'Vendor',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                                if (_vendor != null) ...[
+                                  const SizedBox(width: 8),
+                                  Icon(
+                                    Icons.verified,
+                                    size: 16,
+                                    color: Colors.green[600],
+                                  ),
+                                  const SizedBox(width: 4),
+                                ],
+                              ],
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Vendor',
-                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                      Icon(
+                        Icons.arrow_forward_ios,
+                        size: 16,
+                        color: Colors.grey[600],
                       ),
                     ],
                   ),
                 ),
-              ],
+              ),
             ),
           ),
 
@@ -627,7 +745,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
 
           const SizedBox(height: 24),
 
-          ReuseableTextWidget(title: 'Related Products', subTitle: ''),
+          const ReuseableTextWidget(title: 'Related Products', subTitle: ''),
           SizedBox(
             height: 290,
             child: ListView.builder(

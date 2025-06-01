@@ -97,9 +97,7 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
                 color: Colors.white,
                 size: 26,
               ),
-              onPressed: () {
-                // TODO: Implement notification functionality
-              },
+              onPressed: () {},
               tooltip: 'Notifications',
             ),
             if (vendorCount > 0)

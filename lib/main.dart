@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shop_app/models/user.dart';
 import 'package:shop_app/provider/cart_provider.dart';
@@ -95,10 +94,10 @@ class MyApp extends ConsumerWidget {
         future: _checkTokenAndSetUser(ref),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
           final user = ref.watch(userProvider);
-          return user != null ? MainScreen() : LoginScreen();
+          return user != null ? const MainScreen() : const LoginScreen();
         },
       ),
     );

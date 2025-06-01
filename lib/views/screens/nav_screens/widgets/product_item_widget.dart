@@ -10,7 +10,7 @@ class ProductItemWidget extends ConsumerStatefulWidget {
   const ProductItemWidget({super.key, required this.product});
 
   @override
-  _ProductItemWidgetState createState() => _ProductItemWidgetState();
+  ConsumerState<ProductItemWidget> createState() => _ProductItemWidgetState();
 }
 
 class _ProductItemWidgetState extends ConsumerState<ProductItemWidget> {

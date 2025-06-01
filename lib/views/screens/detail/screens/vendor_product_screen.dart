@@ -116,9 +116,7 @@ class _VendorProductScreenState extends ConsumerState<VendorProductScreen> {
                 color: Colors.white,
                 size: 26,
               ),
-              onPressed: () {
-                // TODO: Implement notification functionality
-              },
+              onPressed: () {},
               tooltip: 'Notifications',
             ),
             if (productCount > 0)

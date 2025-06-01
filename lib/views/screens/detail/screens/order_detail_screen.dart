@@ -318,7 +318,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             ],
           ),
           const SizedBox(height: 8),
-          Row(
+          const Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text('Shipping', style: TextStyle(fontSize: 14)),
@@ -559,7 +559,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                                   children: [
                                     TextFormField(
                                       controller: _reviewController,
-                                      decoration: InputDecoration(
+                                      decoration: const InputDecoration(
                                         labelText: 'Your Review',
                                       ),
                                     ),
@@ -601,7 +601,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                           );
                         },
                         icon: const Icon(CupertinoIcons.location),
-                        label: Text('Leave a Review'),
+                        label: const Text('Leave a Review'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue[700],
                           foregroundColor: Colors.white,
@@ -617,7 +617,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                           // Implement track order
                         },
                         icon: const Icon(CupertinoIcons.location),
-                        label: Text('Track Order'),
+                        label: const Text('Track Order'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue[700],
                           foregroundColor: Colors.white,

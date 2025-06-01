@@ -274,7 +274,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             context,
                             MaterialPageRoute(
                               builder: (context) {
-                                return RegisterScreen();
+                                return const RegisterScreen();
                               },
                             ),
                           );
@@ -282,7 +282,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         child: Text(
                           'Sign Up',
                           style: GoogleFonts.roboto(
-                            color: Color(0xFF103DE5),
+                            color: const Color(0xFF103DE5),
                             fontWeight: FontWeight.bold,
                           ),
                         ),
