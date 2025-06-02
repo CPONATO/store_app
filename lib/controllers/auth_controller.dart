@@ -129,12 +129,12 @@ class AuthController {
             (route) => false,
           );
 
-          showSnackBar(context, 'Đã đăng nhập');
+          showSnackBar(context, 'Logged in');
         },
       );
     } catch (e) {
       print("Lỗi đăng nhập: $e");
-      showSnackBar(context, "Lỗi khi đăng nhập, vui lòng thử lại");
+      showSnackBar(context, "Login Failed");
     }
   }
   // Trong phần signOutUSer method:
