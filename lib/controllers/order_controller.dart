@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:shop_app/services/manage_http_response.dart';
 
 class OrderController {
-  uploadOrders({
+  Future<void> uploadOrders({
     required String id,
     required String fullName,
     required String email,
@@ -21,7 +21,7 @@ class OrderController {
     required String image,
     required String buyerId,
     required String vendorId,
-    required String productId, // Thêm tham số này
+    required String productId,
     required bool processing,
     required bool delivered,
     required context,
