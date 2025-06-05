@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shop_app/controllers/product_controller.dart';
 import 'package:shop_app/models/product.dart';
@@ -15,74 +16,135 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
   final ProductController _productController = ProductController();
   List<Product> _searchedProduct = [];
   bool _isLoading = false;
+  Timer? _debounceTimer;
 
-  void _searchProduct() async {
+  @override
+  void initState() {
+    super.initState();
+    // Lắng nghe thay đổi trong text field
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_onSearchChanged);
+    _searchController.dispose();
+    _debounceTimer?.cancel();
+    super.dispose();
+  }
+
+  // Hàm được gọi mỗi khi text thay đổi
+  void _onSearchChanged() {
+    // Hủy timer cũ nếu có
+    _debounceTimer?.cancel();
+
+    // Tạo timer mới với delay 500ms
+    _debounceTimer = Timer(const Duration(milliseconds: 500), () {
+      final query = _searchController.text.trim();
+      if (query.isNotEmpty) {
+        _searchProduct(query);
+      } else {
+        // Nếu query rỗng, xóa kết quả search
+        setState(() {
+          _searchedProduct = [];
+          _isLoading = false;
+        });
+      }
+    });
+  }
+
+  void _searchProduct(String query) async {
     setState(() {
       _isLoading = true;
     });
 
     try {
-      final query = _searchController.text.trim();
-      if (query.isNotEmpty) {
-        final products = await _productController.searchProduct(query);
+      final products = await _productController.searchProduct(query);
+      if (mounted) {
         setState(() {
           _searchedProduct = products;
+          _isLoading = false;
         });
       }
     } catch (e) {
-      print(e);
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      print('Search error: $e');
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-
     final crossAxisCount = screenWidth < 600 ? 2 : 4;
-
     final childAspectRatio = screenWidth < 600 ? 2.8 / 4 : 4 / 5;
 
     return Scaffold(
-      backgroundColor: Colors.white, // Thay đổi background thành màu trắng
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white, // AppBar cũng màu trắng
-        elevation: 1, // Thêm shadow nhẹ
+        backgroundColor: Colors.white,
+        elevation: 1,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
         title: TextField(
           controller: _searchController,
-          autofocus: true, // Tự động focus vào search field
+          autofocus: true,
           decoration: InputDecoration(
             labelText: "Search Products ...",
             labelStyle: TextStyle(color: Colors.grey[600]),
             border: InputBorder.none,
             hintText: "Search Products ...",
             hintStyle: TextStyle(color: Colors.grey[400]),
-            suffixIcon: IconButton(
-              onPressed: _searchProduct,
-              icon: const Icon(Icons.search, color: Colors.blue),
-            ),
+            suffixIcon:
+                _searchController.text.isNotEmpty
+                    ? IconButton(
+                      onPressed: () {
+                        _searchController.clear();
+                        setState(() {
+                          _searchedProduct = [];
+                        });
+                      },
+                      icon: const Icon(Icons.clear, color: Colors.grey),
+                    )
+                    : const Icon(Icons.search, color: Colors.blue),
           ),
-          onSubmitted: (value) => _searchProduct(), // Search khi nhấn Enter
+          onChanged: (value) {
+            // Trigger rebuild để hiển thị/ẩn clear button
+            setState(() {});
+          },
         ),
       ),
       body: Container(
-        color: Colors.white, // Đảm bảo body cũng màu trắng
+        color: Colors.white,
         child: Column(
           children: [
             // Divider line
             Container(height: 1, color: Colors.grey[200]),
-
             const SizedBox(height: 16),
 
+            // Loading indicator
             if (_isLoading)
-              const Expanded(child: Center(child: CircularProgressIndicator()))
+              const Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(height: 16),
+                      Text(
+                        'Searching...',
+                        style: TextStyle(fontSize: 16, color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            // No results found
             else if (_searchedProduct.isEmpty &&
                 _searchController.text.isNotEmpty)
               Expanded(
@@ -105,11 +167,21 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
                         'Try searching with different keywords',
                         style: TextStyle(fontSize: 16, color: Colors.grey[500]),
                       ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Search query: "${_searchController.text}"',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[500],
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
                     ],
                   ),
                 ),
               )
-            else if (_searchedProduct.isEmpty)
+            // Empty state (no search yet)
+            else if (_searchedProduct.isEmpty && _searchController.text.isEmpty)
               Expanded(
                 child: Center(
                   child: Column(
@@ -130,10 +202,42 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
                         'Enter product name to search',
                         style: TextStyle(fontSize: 16, color: Colors.grey[500]),
                       ),
+                      const SizedBox(height: 16),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.blue[50],
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: Colors.blue[200]!),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.lightbulb_outline,
+                              color: Colors.blue[700],
+                              size: 16,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Search results appear as you type',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.blue[700],
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
               )
+            // Search results
             else
               Expanded(
                 child: Padding(
@@ -141,18 +245,53 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Results count
-                      Padding(
+                      // Results count with search query
+                      Container(
                         padding: const EdgeInsets.only(bottom: 16),
-                        child: Text(
-                          '${_searchedProduct.length} results found',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.grey[700],
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              color: Colors.grey[200]!,
+                              width: 1,
+                            ),
                           ),
                         ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.search_rounded,
+                              color: Colors.blue[700],
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '${_searchedProduct.length} results found',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.grey[700],
+                                    ),
+                                  ),
+                                  Text(
+                                    'for "${_searchController.text}"',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey[500],
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
+
+                      const SizedBox(height: 16),
 
                       // Products grid
                       Expanded(
